@@ -20,145 +20,177 @@ class TaskItemView extends StatefulWidget {
 class _TaskItemViewState extends State<TaskItemView> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(0),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Checkbox(
-                value: widget.taskModel.completed,
-                onChanged: (value) {
-                  var taskModel = TaskModel(
-                      id: widget.taskModel.id,
-                      title: widget.taskModel.title,
-                      description: widget.taskModel.description,
-                      completed: !widget.taskModel.completed,
-                      startDateTime: widget.taskModel.startDateTime,
-                      stopDateTime: widget.taskModel.stopDateTime);
-                  context.read<TasksBloc>().add(
-                      UpdateTaskEvent(taskModel: taskModel));
-                }),
-            Expanded(
-              child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(right: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: const BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.all(Radius.circular(2))),
+                  height: 100,
+                  child: const Center(child: Text('1')),
+                ),
+                Checkbox(
+                    value: widget.taskModel.completed,
+                    onChanged: (value) {
+                      var taskModel = TaskModel(
+                          id: widget.taskModel.id,
+                          title: widget.taskModel.title,
+                          description: widget.taskModel.description,
+                          completed: !widget.taskModel.completed,
+                          startDateTime: widget.taskModel.startDateTime,
+                          stopDateTime: widget.taskModel.stopDateTime);
+                      context.read<TasksBloc>().add(
+                          UpdateTaskEvent(taskModel: taskModel));
+                    }),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment:
+                    CrossAxisAlignment.start,
                     children: [
-                      Expanded(child: buildText(
-                          widget.taskModel.title,
-                          kBlackColor,
-                          textMedium,
-                          FontWeight.w500,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: buildText(
+                              widget.taskModel.title,
+                              kBlackColor,
+                              textMedium,
+                              FontWeight.w500,
+                              TextAlign.start,
+                              TextOverflow.clip)),
+                          PopupMenuButton<int>(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            color: kWhiteColor,
+                            elevation: 1,
+                            onSelected: (value) {
+                              switch (value) {
+                                case 0:
+                                  {
+                                    Navigator.pushNamed(context, Pages.updateTask, arguments: widget.taskModel);
+                                    break;
+                                  }
+                                case 1:
+                                  {
+                                    context.read<TasksBloc>().add(
+                                        DeleteTaskEvent(taskModel: widget.taskModel));
+                                    break;
+                                  }
+                              }
+                            },
+                            itemBuilder: (BuildContext context) {
+                              return [
+                                PopupMenuItem<int>(
+                                  value: 0,
+                                  child: Row(
+                                    children: [
+                                      SvgPicture.asset(
+                                        'assets/svgs/edit.svg',
+                                        width: 20,
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      buildText(
+                                          'Edit task',
+                                          kBlackColor,
+                                          textMedium,
+                                          FontWeight.normal,
+                                          TextAlign.start,
+                                          TextOverflow.clip)
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem<int>(
+                                  value: 1,
+                                  child: Row(
+                                    children: [
+                                      SvgPicture.asset(
+                                        'assets/svgs/delete.svg',
+                                        width: 20,
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      buildText(
+                                          'Delete task',
+                                          kRed,
+                                          textMedium,
+                                          FontWeight.normal,
+                                          TextAlign.start,
+                                          TextOverflow.clip)
+                                    ],
+                                  ),
+                                ),
+                              ];
+                            },
+                            child: SvgPicture.asset('assets/svgs/vertical_menu.svg'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5,),
+                      buildText(
+                          widget.taskModel
+                              .description,
+                          kGrey1,
+                          textSmall,
+                          FontWeight.normal,
                           TextAlign.start,
-                          TextOverflow.clip)),
-                      PopupMenuButton<int>(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        color: kWhiteColor,
-                        elevation: 1,
-                        onSelected: (value) {
-                          switch (value) {
-                            case 0:
-                              {
-                                Navigator.pushNamed(context, Pages.updateTask, arguments: widget.taskModel);
-                                break;
-                              }
-                            case 1:
-                              {
-                                context.read<TasksBloc>().add(
-                                    DeleteTaskEvent(taskModel: widget.taskModel));
-                                break;
-                              }
-                          }
-                        },
-                        itemBuilder: (BuildContext context) {
-                          return [
-                            PopupMenuItem<int>(
-                              value: 0,
-                              child: Row(
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/svgs/edit.svg',
-                                    width: 20,
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  buildText(
-                                      'Edit task',
-                                      kBlackColor,
-                                      textMedium,
-                                      FontWeight.normal,
-                                      TextAlign.start,
-                                      TextOverflow.clip)
-                                ],
-                              ),
-                            ),
-                            PopupMenuItem<int>(
-                              value: 1,
-                              child: Row(
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/svgs/delete.svg',
-                                    width: 20,
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  buildText(
-                                      'Delete task',
-                                      kRed,
-                                      textMedium,
-                                      FontWeight.normal,
-                                      TextAlign.start,
-                                      TextOverflow.clip)
-                                ],
-                              ),
-                            ),
-                          ];
-                        },
-                        child: SvgPicture.asset('assets/svgs/vertical_menu.svg'),
+                          TextOverflow.clip),
+                      const SizedBox(height: 15,),
+                      Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                          decoration: BoxDecoration(
+                              color: kPrimaryColor.withOpacity(.1),
+                              borderRadius: const BorderRadius.all(Radius.circular(5))
+                          ),
+                          child: Row(
+                            children: [
+                              SvgPicture.asset('assets/svgs/calender.svg', width: 12,),
+                              const SizedBox(width: 10,),
+                              Expanded(child: buildText(
+                                  '${formatDate(dateTime: widget.taskModel
+                                      .startDateTime.toString())} - ${formatDate(dateTime: widget.taskModel
+                                      .stopDateTime.toString())}', kBlackColor, textTiny,
+                                  FontWeight.w400, TextAlign.start, TextOverflow.clip),)
+                            ],
+                          )
                       ),
                     ],
                   ),
-                  const SizedBox(height: 5,),
-                  buildText(
-                      widget.taskModel
-                          .description,
-                      kGrey1,
-                      textSmall,
-                      FontWeight.normal,
-                      TextAlign.start,
-                      TextOverflow.clip),
-                  const SizedBox(height: 15,),
-                  Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                      decoration: BoxDecoration(
-                          color: kPrimaryColor.withOpacity(.1),
-                          borderRadius: const BorderRadius.all(Radius.circular(5))
-                      ),
-                      child: Row(
-                        children: [
-                          SvgPicture.asset('assets/svgs/calender.svg', width: 12,),
-                          const SizedBox(width: 10,),
-                          Expanded(child: buildText(
-                              '${formatDate(dateTime: widget.taskModel
-                                  .startDateTime.toString())} - ${formatDate(dateTime: widget.taskModel
-                                  .stopDateTime.toString())}', kBlackColor, textTiny,
-                              FontWeight.w400, TextAlign.start, TextOverflow.clip),)
-                        ],
-                      )
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 10,),
+              ],
             ),
-            const SizedBox(width: 10,),
-          ],
-        ));
+        ),
+        const Text('User ID'),
+      ],
+    );
   }
 }
+
+/*
+*
+Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const Text('User ID'),
+            Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(0),
+              decoration: const BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.all(Radius.circular(2))),
+              width: double.infinity,
+              child: const Center(child: Text('Project Name')),
+            ),
+          ],
+        ),
+*
+* */

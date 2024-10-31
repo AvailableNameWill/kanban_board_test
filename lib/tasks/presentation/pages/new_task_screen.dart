@@ -99,7 +99,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                             },
                             onRangeSelected: _onRangeSelected,
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 5),
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 10, horizontal: 20),
@@ -117,7 +117,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                                 TextAlign.start,
                                 TextOverflow.clip),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 5),
                           buildText(
                               'Title',
                               kBlackColor,
@@ -126,7 +126,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                               TextAlign.start,
                               TextOverflow.clip),
                           const SizedBox(
-                            height: 10,
+                            height: 5,
                           ),
                           BuildTextField(
                               hint: "Task Title",
@@ -135,7 +135,45 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                               fillColor: kWhiteColor,
                               onChange: (value) {}),
                           const SizedBox(
-                            height: 20,
+                            height: 5,
+                          ),
+                          buildText(
+                              'Select project',
+                              kBlackColor,
+                              textMedium,
+                              FontWeight.bold,
+                              TextAlign.start,
+                              TextOverflow.clip),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          BuildTextField(
+                              hint: "Debe ser un DropDownButton",
+                              controller: null,
+                              inputType: TextInputType.text,
+                              fillColor: kWhiteColor,
+                              onChange: (value) {}),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          buildText(
+                              'Select User',
+                              kBlackColor,
+                              textMedium,
+                              FontWeight.bold,
+                              TextAlign.start,
+                              TextOverflow.clip),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          BuildTextField(
+                              hint: "Debe ser un DropDownButton",
+                              controller: null,
+                              inputType: TextInputType.text,
+                              fillColor: kWhiteColor,
+                              onChange: (value) {}),
+                          const SizedBox(
+                            height: 5,
                           ),
                           buildText(
                               'Description',
@@ -145,7 +183,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                               TextAlign.start,
                               TextOverflow.clip),
                           const SizedBox(
-                            height: 10,
+                            height: 5,
                           ),
                           BuildTextField(
                               hint: "Task Description",
@@ -153,7 +191,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                               inputType: TextInputType.multiline,
                               fillColor: kWhiteColor,
                               onChange: (value) {}),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 5),
                           Row(
                             children: [
                               Expanded(
@@ -233,7 +271,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                                     )),
                               ),
                             ],
-                          )
+                          ),
                         ],
                       );
                     })))));

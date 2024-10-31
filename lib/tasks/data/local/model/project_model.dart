@@ -1,21 +1,17 @@
-class TaskModel {
+class ProjectModel{
   String id;
   String title;
   String description;
-  //String? project_id;
-  //String? user_id;
   DateTime? startDateTime;
   DateTime? stopDateTime;
   bool completed;
 
-  TaskModel({
+  ProjectModel({
     required this.id,
     required this.title,
     required this.description,
     required this.startDateTime,
     required this.stopDateTime,
-    //this.project_id,
-    //this.user_id,
     this.completed = false,
   });
 
@@ -31,8 +27,8 @@ class TaskModel {
   }
 
 
-  factory TaskModel.fromJson(Map<String, dynamic> json) {
-    return TaskModel(
+  factory ProjectModel.fromJson(Map<String, dynamic> json) {
+    return ProjectModel(
       id: json['id'],
       title: json['title'],
       description: json['description'],

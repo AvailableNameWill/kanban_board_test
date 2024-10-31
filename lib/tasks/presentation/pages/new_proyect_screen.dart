@@ -5,33 +5,35 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:kanban_board_test/components/widgets.dart';
 import 'package:kanban_board_test/tasks/data/local/model/task_model.dart';
 import 'package:kanban_board_test/utils/font_sizes.dart';
+import 'package:kanban_board_test/utils/util.dart';
 
 import '../../../components/custom_app_bar.dart';
 import '../../../utils/color_palette.dart';
-import '../../../utils/util.dart';
 import '../bloc/tasks_bloc.dart';
 import '../../../components/build_text_field.dart';
 
-class UpdateTaskScreen extends StatefulWidget {
-  final TaskModel taskModel;
-
-  const UpdateTaskScreen({super.key, required this.taskModel});
+class NewProjectScreen extends StatefulWidget {
+  const NewProjectScreen({super.key});
 
   @override
-  State<UpdateTaskScreen> createState() => _UpdateTaskScreenState();
+  State<NewProjectScreen> createState() => _NewProjectScreenState();
 }
 
-class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
+class _NewProjectScreenState extends State<NewProjectScreen> {
   TextEditingController title = TextEditingController();
   TextEditingController description = TextEditingController();
-  TextEditingController project  = TextEditingController();
-  TextEditingController user = TextEditingController();
 
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
+
+  @override
+  void initState() {
+    _selectedDay = _focusedDay;
+    super.initState();
+  }
 
   _onRangeSelected(DateTime? start, DateTime? end, DateTime focusDay) {
     setState(() {
@@ -43,25 +45,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
   }
 
   @override
-  void dispose() {
-    title.dispose();
-    description.dispose();
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    title.text = widget.taskModel.title;
-    description.text = widget.taskModel.description;
-    _selectedDay = _focusedDay;
-    _rangeStart = widget.taskModel.startDateTime;
-    _rangeEnd = widget.taskModel.stopDateTime;
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
     return AnnotatedRegion<SystemUiOverlayStyle>(
         value: const SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
@@ -69,7 +53,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
         child: Scaffold(
             backgroundColor: kWhiteColor,
             appBar: const CustomAppBar(
-              title: 'Update Task',
+              title: 'Crear nuevo proyecto',
             ),
             body: GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -78,11 +62,11 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                     padding: const EdgeInsets.all(20),
                     child: BlocConsumer<TasksBloc, TasksState>(
                         listener: (context, state) {
-                          if (state is UpdateTaskFailure) {
+                          if (state is AddTaskFailure) {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 getSnackBar(state.error, kRed));
                           }
-                          if (state is UpdateTaskSuccess) {
+                          if (state is AddTasksSuccess) {
                             Navigator.pop(context);
                           }
                         }, builder: (context, state) {
@@ -125,8 +109,8 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                                 const BorderRadius.all(Radius.circular(5))),
                             child: buildText(
                                 _rangeStart != null && _rangeEnd != null
-                                    ? 'Task starting at ${formatDate(dateTime: _rangeStart.toString())} - ${formatDate(dateTime: _rangeEnd.toString())}'
-                                    : 'Select a date range',
+                                    ? 'El proyecto empiza ${formatDate(dateTime: _rangeStart.toString())} - ${formatDate(dateTime: _rangeEnd.toString())}'
+                                    : 'Seleccione un rango para las fechas',
                                 kPrimaryColor,
                                 textSmall,
                                 FontWeight.w400,
@@ -135,7 +119,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                           ),
                           const SizedBox(height: 5),
                           buildText(
-                              'Title',
+                              'Nombre',
                               kBlackColor,
                               textMedium,
                               FontWeight.bold,
@@ -145,7 +129,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                             height: 5,
                           ),
                           BuildTextField(
-                              hint: "Task Title",
+                              hint: "Nombre del proyecto",
                               controller: title,
                               inputType: TextInputType.text,
                               fillColor: kWhiteColor,
@@ -154,7 +138,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                             height: 5,
                           ),
                           buildText(
-                              'Select project',
+                              'Descripcion',
                               kBlackColor,
                               textMedium,
                               FontWeight.bold,
@@ -164,89 +148,91 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                             height: 5,
                           ),
                           BuildTextField(
-                              hint: "Debe ser un DropDownButton",
-                              controller: project,
-                              inputType: TextInputType.text,
-                              fillColor: kWhiteColor,
-                              onChange: (value) {}),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          buildText(
-                              'Select User',
-                              kBlackColor,
-                              textMedium,
-                              FontWeight.bold,
-                              TextAlign.start,
-                              TextOverflow.clip),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          BuildTextField(
-                              hint: "Debe ser un DropDownButton",
-                              controller: user,
-                              inputType: TextInputType.text,
-                              fillColor: kWhiteColor,
-                              onChange: (value) {}),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          buildText(
-                              'Description',
-                              kBlackColor,
-                              textMedium,
-                              FontWeight.bold,
-                              TextAlign.start,
-                              TextOverflow.clip),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          BuildTextField(
-                              hint: "Task Description",
+                              hint: "Descripcion del proyecto",
                               controller: description,
                               inputType: TextInputType.multiline,
                               fillColor: kWhiteColor,
                               onChange: (value) {}),
                           const SizedBox(height: 5),
-                          SizedBox(
-                            width: size.width,
-                            child: ElevatedButton(
-                                style: ButtonStyle(
-                                  foregroundColor:
-                                  MaterialStateProperty.all<Color>(
-                                      Colors.white),
-                                  backgroundColor:
-                                  MaterialStateProperty.all<Color>(
-                                      kPrimaryColor),
-                                  shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          10), // Adjust the radius as needed
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                    style: ButtonStyle(
+                                      foregroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.white),
+                                      backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          kWhiteColor),
+                                      shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10), // Adjust the radius as needed
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  var taskModel = TaskModel(
-                                      id: widget.taskModel.id,
-                                      title: title.text,
-                                      description: description.text,
-                                      completed: widget.taskModel.completed,
-                                      startDateTime: _rangeStart,
-                                      stopDateTime: _rangeEnd);
-                                  context.read<TasksBloc>().add(
-                                      UpdateTaskEvent(taskModel: taskModel));
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(15),
-                                  child: buildText(
-                                      'Update',
-                                      kWhiteColor,
-                                      textMedium,
-                                      FontWeight.w600,
-                                      TextAlign.center,
-                                      TextOverflow.clip),
-                                )),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(15),
+                                      child: buildText(
+                                          'Cancelar',
+                                          kBlackColor,
+                                          textMedium,
+                                          FontWeight.w600,
+                                          TextAlign.center,
+                                          TextOverflow.clip),
+                                    )),
+                              ),
+                              const SizedBox(
+                                width: 20,
+                              ),
+                              Expanded(
+                                child: ElevatedButton(
+                                    style: ButtonStyle(
+                                      foregroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.white),
+                                      backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          kPrimaryColor),
+                                      shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10), // Adjust the radius as needed
+                                        ),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      final String taskId = DateTime.now()
+                                          .millisecondsSinceEpoch
+                                          .toString();
+                                      var taskModel = TaskModel(
+                                          id: taskId,
+                                          title: title.text,
+                                          description: description.text,
+                                          startDateTime: _rangeStart,
+                                          stopDateTime: _rangeEnd);
+                                      context.read<TasksBloc>().add(
+                                          AddNewTaskEvent(
+                                              taskModel: taskModel));
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(15),
+                                      child: buildText(
+                                          'Guardar',
+                                          kWhiteColor,
+                                          textMedium,
+                                          FontWeight.w600,
+                                          TextAlign.center,
+                                          TextOverflow.clip),
+                                    )),
+                              ),
+                            ],
                           ),
                         ],
                       );

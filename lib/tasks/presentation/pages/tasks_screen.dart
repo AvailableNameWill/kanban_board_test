@@ -23,6 +23,13 @@ class TasksScreen extends StatefulWidget {
 
 class _TasksScreenState extends State<TasksScreen> {
   TextEditingController searchController = TextEditingController();
+  bool _isExpanded = false;
+
+  void _toggleButtons(){
+    setState(() {
+      _isExpanded = !_isExpanded;
+    });
+  }
 
   @override
   void initState() {
@@ -252,14 +259,89 @@ class _TasksScreenState extends State<TasksScreen> {
                         }
                         return Container();
                       }))),
-              floatingActionButton: FloatingActionButton(
+              floatingActionButton: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  if(_isExpanded)
+                      Positioned.fill(
+                        child: GestureDetector(
+                          onTap: _toggleButtons,
+                          child: null
+                        ),
+                      ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if(_isExpanded) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(right: 8.0),
+                              child: Text('Agregar Tarea', style: TextStyle(fontSize: 16, color: Colors.black),),
+                            ),
+                            FloatingActionButton(
+                              heroTag: 'add_task',
+                              backgroundColor: Colors.white,
+                              onPressed: (){
+                                Navigator.pushNamed(context, Pages.createNewTask);
+                              },
+                              child: const Icon(
+                                Icons.add_circle,
+                                color: kPrimaryColor,
+                              ),
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            const Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Text("Agregar proyecto", style: TextStyle(fontSize: 16, color: Colors.black),),
+                            ),
+                            FloatingActionButton(
+                              heroTag: 'add_pro',
+                              backgroundColor: Colors.white,
+                              onPressed: (){
+                                Navigator.pushNamed(context, Pages.createNewProject);
+                              },
+                              child: const Icon(
+                                Icons.add_circle,
+                                color: kPrimaryColor,
+                              ),
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 10)
+                      ],
+                      Container(
+                        alignment: Alignment.bottomRight,
+                        child: FloatingActionButton(
+                          onPressed: _toggleButtons,
+                          heroTag: 'main_fab',
+                          backgroundColor: Colors.white,
+                          child: Icon(_isExpanded ? Icons.close : Icons.add_circle, color: kPrimaryColor,),
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ),
+            )));
+  }
+}
+
+/*
+*
+FloatingActionButton(
                   child: const Icon(
                     Icons.add_circle,
                     color: kPrimaryColor,
                   ),
                   onPressed: () {
                     Navigator.pushNamed(context, Pages.createNewTask);
-                  }),
-            )));
-  }
-}
+                  })
+*
+* */

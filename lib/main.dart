@@ -7,13 +7,21 @@ import 'package:kanban_board_test/tasks/data/local/data_sources/tasks_data_provi
 import 'package:kanban_board_test/tasks/data/respository/task_repository.dart';
 import 'package:kanban_board_test/tasks/presentation/bloc/tasks_bloc.dart';
 import 'package:kanban_board_test/utils/color_palette.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'bloc_state_observer.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //Bloc para gestionar el estado de la aplicacion, dentro de la clase BlocStateObserver se encuentran
+  //todos los metodos para gestionar los estados
   Bloc.observer = BlocStateObserver();
+  //Aqui se guardan los datos de la aplicacion (por los momentos)
   SharedPreferences preferences = await SharedPreferences.getInstance();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp(
     preferences: preferences,
   ));
