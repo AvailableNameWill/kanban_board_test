@@ -45,8 +45,8 @@ class _TaskItemViewState extends State<TaskItemView> {
                           title: widget.taskModel.title,
                           description: widget.taskModel.description,
                           completed: !widget.taskModel.completed,
-                          startDateTime: widget.taskModel.startDateTime,
-                          stopDateTime: widget.taskModel.stopDateTime);
+                          start_date_time: widget.taskModel.start_date_time,
+                          stop_date_time: widget.taskModel.stop_date_time);
                       context.read<TasksBloc>().add(
                           UpdateTaskEvent(taskModel: taskModel));
                     }),
@@ -158,8 +158,8 @@ class _TaskItemViewState extends State<TaskItemView> {
                               const SizedBox(width: 10,),
                               Expanded(child: buildText(
                                   '${formatDate(dateTime: widget.taskModel
-                                      .startDateTime.toString())} - ${formatDate(dateTime: widget.taskModel
-                                      .stopDateTime.toString())}', kBlackColor, textTiny,
+                                      .start_date_time.toString())} - ${formatDate(dateTime: widget.taskModel
+                                      .stop_date_time.toString())}', kBlackColor, textTiny,
                                   FontWeight.w400, TextAlign.start, TextOverflow.clip),)
                             ],
                           )

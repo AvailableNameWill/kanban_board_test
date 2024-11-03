@@ -1,0 +1,13 @@
+Future<void> createTask(TaskModel taskModel) async {
+  try {
+    // Agregar el documento y obtener su referencia
+    DocumentReference docRef = await firestore.collection('tasks').add(taskModel.toJson());
+
+    // Acceder al ID del documento recién creado
+    String generatedId = docRef.id;
+    print('Nuevo ID generado: $generatedId');
+  } catch (exception) {
+    print(exception.toString());
+    throw Exception(handleException(exception));
+  }
+}

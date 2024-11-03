@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,25 +19,24 @@ Future<void> main() async {
   //todos los metodos para gestionar los estados
   Bloc.observer = BlocStateObserver();
   //Aqui se guardan los datos de la aplicacion (por los momentos)
-  SharedPreferences preferences = await SharedPreferences.getInstance();
+  //SharedPreferences preferences = await SharedPreferences.getInstance();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MyApp(
-    preferences: preferences,
-  ));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final SharedPreferences preferences;
-  const MyApp({super.key, required this.preferences});
+  //final SharedPreferences preferences;
+  //const MyApp({super.key, required this.preferences});
+  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return RepositoryProvider(
         create: (context) =>
-            TaskRepository(taskDataProvider: TaskDataProvider(preferences)),
+            TaskRepository(taskDataProvider: TaskDataProvider(FirebaseFirestore.instance)),
         child: BlocProvider(
             create: (context) => TasksBloc(context.read<TaskRepository>()),
             child: MaterialApp(

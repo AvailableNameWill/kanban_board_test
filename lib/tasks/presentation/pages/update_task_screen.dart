@@ -54,8 +54,8 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
     title.text = widget.taskModel.title;
     description.text = widget.taskModel.description;
     _selectedDay = _focusedDay;
-    _rangeStart = widget.taskModel.startDateTime;
-    _rangeEnd = widget.taskModel.stopDateTime;
+    _rangeStart = widget.taskModel.start_date_time;
+    _rangeEnd = widget.taskModel.stop_date_time;
     super.initState();
   }
 
@@ -232,8 +232,8 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                                       title: title.text,
                                       description: description.text,
                                       completed: widget.taskModel.completed,
-                                      startDateTime: _rangeStart,
-                                      stopDateTime: _rangeEnd);
+                                      start_date_time: _rangeStart,
+                                      stop_date_time: _rangeEnd);
                                   context.read<TasksBloc>().add(
                                       UpdateTaskEvent(taskModel: taskModel));
                                 },

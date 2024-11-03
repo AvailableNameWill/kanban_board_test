@@ -253,8 +253,8 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                                           id: taskId,
                                           title: title.text,
                                           description: description.text,
-                                          startDateTime: _rangeStart,
-                                          stopDateTime: _rangeEnd);
+                                          start_date_time: _rangeStart,
+                                          stop_date_time: _rangeEnd);
                                       context.read<TasksBloc>().add(
                                           AddNewTaskEvent(
                                               taskModel: taskModel));

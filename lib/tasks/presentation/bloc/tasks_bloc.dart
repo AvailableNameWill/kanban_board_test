@@ -29,10 +29,10 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
       if (event.taskModel.description.trim().isEmpty) {
         return emit(AddTaskFailure(error: 'Task description cannot be blank'));
       }
-      if (event.taskModel.startDateTime == null) {
+      if (event.taskModel.start_date_time == null) {
         return emit(AddTaskFailure(error: 'Missing task start date'));
       }
-      if (event.taskModel.stopDateTime == null) {
+      if (event.taskModel.stop_date_time == null) {
         return emit(AddTaskFailure(error: 'Missing task stop date'));
       }
       await taskRepository.createNewTask(event.taskModel);
@@ -63,10 +63,10 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
         return emit(
             UpdateTaskFailure(error: 'Task description cannot be blank'));
       }
-      if (event.taskModel.startDateTime == null) {
+      if (event.taskModel.start_date_time == null) {
         return emit(UpdateTaskFailure(error: 'Missing task start date'));
       }
-      if (event.taskModel.stopDateTime == null) {
+      if (event.taskModel.stop_date_time == null) {
         return emit(UpdateTaskFailure(error: 'Missing task stop date'));
       }
       emit(TasksLoading());
