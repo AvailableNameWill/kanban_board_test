@@ -3,9 +3,11 @@ import 'package:kanban_board_test/routes/pages.dart';
 import 'package:kanban_board_test/splash_screen.dart';
 import 'package:kanban_board_test/tasks/data/local/model/project_model.dart';
 import 'package:kanban_board_test/tasks/data/local/model/task_model.dart';
+import 'package:kanban_board_test/tasks/presentation/pages/home_page.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/new_proyect_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/new_task_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/tasks_screen.dart';
+import 'package:kanban_board_test/tasks/presentation/pages/update_project_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/update_task_screen.dart';
 
 import '../page_not_found.dart';
@@ -18,7 +20,7 @@ Route onGenerateRoute(RouteSettings routeSettings) {
       );
     case Pages.home:
       return MaterialPageRoute(
-        builder: (context) => const TasksScreen(),
+        builder: (context) => const HomePage(),
       );
     case Pages.createNewTask:
       return MaterialPageRoute(
@@ -32,6 +34,11 @@ Route onGenerateRoute(RouteSettings routeSettings) {
     case Pages.createNewProject:
       return MaterialPageRoute(
         builder: (context) => const NewProjectScreen(),
+      );
+    case Pages.updateProject:
+      final args = routeSettings.arguments as ProjectModel;
+      return MaterialPageRoute(
+        builder: (context) => UpdateProjectScreen(projectModel: args)
       );
     default:
       return MaterialPageRoute(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:kanban_board_test/tasks/presentation/bloc/projects_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:kanban_board_test/components/widgets.dart';
 import 'package:kanban_board_test/tasks/data/local/model/task_model.dart';
@@ -9,6 +11,7 @@ import 'package:kanban_board_test/utils/util.dart';
 
 import '../../../components/custom_app_bar.dart';
 import '../../../utils/color_palette.dart';
+import '../../data/local/model/project_model.dart';
 import '../bloc/tasks_bloc.dart';
 import '../../../components/build_text_field.dart';
 
@@ -28,6 +31,7 @@ class _NewProjectScreenState extends State<NewProjectScreen> {
   DateTime? _selectedDay;
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
+  Color _selectedColor = Colors.white;
 
   @override
   void initState() {
@@ -60,13 +64,13 @@ class _NewProjectScreenState extends State<NewProjectScreen> {
                 onTap: () => FocusScope.of(context).unfocus(),
                 child: Padding(
                     padding: const EdgeInsets.all(20),
-                    child: BlocConsumer<TasksBloc, TasksState>(
+                    child: BlocConsumer<ProjectsBloc, ProjectsState>(
                         listener: (context, state) {
-                          if (state is AddTaskFailure) {
+                          if (state is AddProjectFailure) {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 getSnackBar(state.error, kRed));
                           }
-                          if (state is AddTasksSuccess) {
+                          if (state is AddProjectSuccess) {
                             Navigator.pop(context);
                           }
                         }, builder: (context, state) {
@@ -109,7 +113,7 @@ class _NewProjectScreenState extends State<NewProjectScreen> {
                                 const BorderRadius.all(Radius.circular(5))),
                             child: buildText(
                                 _rangeStart != null && _rangeEnd != null
-                                    ? 'El proyecto empiza ${formatDate(dateTime: _rangeStart.toString())} - ${formatDate(dateTime: _rangeEnd.toString())}'
+                                    ? 'El proyecto empieza ${formatDate(dateTime: _rangeStart.toString())} - ${formatDate(dateTime: _rangeEnd.toString())}'
                                     : 'Seleccione un rango para las fechas',
                                 kPrimaryColor,
                                 textSmall,
@@ -153,6 +157,38 @@ class _NewProjectScreenState extends State<NewProjectScreen> {
                               inputType: TextInputType.multiline,
                               fillColor: kWhiteColor,
                               onChange: (value) {}),
+                          const SizedBox(height: 5),
+                          buildText(
+                              'Color del proyecto',
+                              kBlackColor,
+                              textMedium,
+                              FontWeight.bold,
+                              TextAlign.start,
+                              TextOverflow.clip,
+                          ),
+                          const SizedBox(height: 5),
+                          GestureDetector(
+                            onTap: (){
+                              _openColorPicker(context);
+                            },
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: _selectedColor,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.grey.shade300)
+                              ),
+                              alignment: Alignment.center,
+                              child: buildText(
+                                'Seleccionar color',
+                                 Colors.white,
+                                 textMedium,
+                                 FontWeight.w600,
+                                 TextAlign.center,
+                                 TextOverflow.clip
+                              ),
+                            ),
+                          ),
                           const SizedBox(height: 5),
                           Row(
                             children: [
@@ -211,15 +247,17 @@ class _NewProjectScreenState extends State<NewProjectScreen> {
                                       final String taskId = DateTime.now()
                                           .millisecondsSinceEpoch
                                           .toString();
-                                      var taskModel = TaskModel(
+                                      var projectModel = ProjectModel(
                                           id: taskId,
                                           title: title.text,
                                           description: description.text,
                                           start_date_time: _rangeStart,
-                                          stop_date_time: _rangeEnd);
-                                      context.read<TasksBloc>().add(
-                                          AddNewTaskEvent(
-                                              taskModel: taskModel));
+                                          stop_date_time: _rangeEnd,
+                                          color: colorToHex(_selectedColor),
+                                      );
+                                      context.read<ProjectsBloc>().add(
+                                          AddNewProjectEvent(
+                                              projectModel: projectModel));
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.all(15),
@@ -237,5 +275,38 @@ class _NewProjectScreenState extends State<NewProjectScreen> {
                         ],
                       );
                     })))));
+  }
+
+  void _openColorPicker(BuildContext context){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            title: const Text('Selecciona un color'),
+            content: SingleChildScrollView(
+              child: BlockPicker(
+                  pickerColor: _selectedColor,
+                  onColorChanged: (Color color){
+                    setState(() {
+                      _selectedColor = color;
+                    });
+                  },
+              ),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: (){
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cerrar')
+              ),
+            ],
+          );
+        }
+    );
+  }
+
+  String colorToHex(Color color){
+    return '#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase()}';
   }
 }

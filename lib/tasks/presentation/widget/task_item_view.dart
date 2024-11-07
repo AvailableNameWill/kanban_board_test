@@ -35,7 +35,7 @@ class _TaskItemViewState extends State<TaskItemView> {
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: const BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.all(Radius.circular(2))),
                   height: 100,
-                  child: const Center(child: Text('1')),
+                  child: const Center(child: Text('')),
                 ),
                 Checkbox(
                     value: widget.taskModel.completed,

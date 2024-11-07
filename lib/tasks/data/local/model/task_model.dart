@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TaskModel {
-  String id;
-  String title;
-  String description;
-  //String? project_id;
-  //String? user_id;
-  DateTime? start_date_time;
-  DateTime? stop_date_time;
+  String id; //ID de la tarea
+  String title; // Titulo de la tarea
+  String description; //Descripcion de la tarea
+  //String? project_id; //ID del proyecto al que esta ligada la tarea
+  //String? user_id; //ID del usuario que esta ligado a la tarea
+  DateTime? start_date_time; //Fecha de inicio de la tarea
+  DateTime? stop_date_time; //Fecha de fin de la tarea
   bool completed;
 
   TaskModel({
@@ -21,6 +21,7 @@ class TaskModel {
     this.completed = false,
   });
 
+  //Metodo para crear una lista de tipo ProjectModel en formato Json, este se usa para enviar datos
   Map<String, dynamic> toJson() {
     return {
       'title': title,
@@ -31,7 +32,7 @@ class TaskModel {
     };
   }
 
-
+  //Metodo para crear una lista de tipo ProjectModel en formato Json, este se usa para recibir datos
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
       id: json['id'] as String,
@@ -47,6 +48,7 @@ class TaskModel {
     );
   }
 
+  //Metodo para recibir los datos desde FireStore
   factory TaskModel.fromFirestore(DocumentSnapshot doc){
     final data = doc.data() as Map<String, dynamic>;
     return TaskModel(

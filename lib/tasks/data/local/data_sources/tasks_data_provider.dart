@@ -69,18 +69,19 @@ class TaskDataProvider {
       switch (sortOption) {
         case 0:
           tasks.sort((a, b) {
-            // Sort by date
+            // Sort by date, si la fecha de inicio de 'a' es despues de b entonces se coloca a 'a' despues de b
             if (a.start_date_time!.isAfter(b.start_date_time!)) {
               return 1;
-            } else if (a.start_date_time!.isBefore(b.start_date_time!)) {
+            } else if (a.start_date_time!.isBefore(b.start_date_time!)) {//caso contrario a va antes que b
               return -1;
             }
             return 0;
           });
           break;
         case 1:
-        //sort by completed tasks
+        //sort by completed tasks,
           tasks.sort((a, b) {
+            //Si la tarea 'b' esta completada esta va antes que a
             if (!a.completed && b.completed) {
               return 1;
             } else if (a.completed && !b.completed) {
@@ -109,6 +110,7 @@ class TaskDataProvider {
     }
   }
 
+  //Metodo para crear una tarea
   Future<void> createTask(TaskModel taskModel) async {
     try {
       /*tasks.add(taskModel);
@@ -122,6 +124,7 @@ class TaskDataProvider {
     }
   }
 
+  //Metodo para actualizar una tarea
   Future<List<TaskModel>> updateTask(TaskModel taskModel) async {
     try {
       /*tasks[tasks.indexWhere((element) => element.id == taskModel.id)] =
@@ -145,6 +148,7 @@ class TaskDataProvider {
     }
   }
 
+  //Metodo para eliminar una tarea
   Future<List<TaskModel>> deleteTask(TaskModel taskModel) async {
     try {
       /*tasks.remove(taskModel);
@@ -158,9 +162,13 @@ class TaskDataProvider {
     }
   }
 
+  //Metodo para buscar tareas o filtrarlas
   Future<List<TaskModel>> searchTasks(String keywords) async {
+    //Se carga la lista
     final List<TaskModel> tasks = await getTasks();
+    //se convierten los caracteres del parametro keywords a minusculas
     final searchText = keywords.toLowerCase();
+    //Se devuelven las tareas donde el titulo o descripcion de la tarea que tenga coincidencias con el parametro
     return tasks.where((task){
       final titleMatches = task.title.toLowerCase().contains(searchText);
       final descriptionMatches = task.description.toLowerCase().contains(searchText);

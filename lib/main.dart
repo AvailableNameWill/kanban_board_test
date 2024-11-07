@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kanban_board_test/tasks/data/local/data_sources/projects_data_provider.dart';
+import 'package:kanban_board_test/tasks/data/respository/project_repository.dart';
+import 'package:kanban_board_test/tasks/presentation/bloc/projects_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kanban_board_test/routes/app_router.dart';
 import 'package:kanban_board_test/routes/pages.dart';
@@ -34,11 +37,32 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-        create: (context) =>
-            TaskRepository(taskDataProvider: TaskDataProvider(FirebaseFirestore.instance)),
-        child: BlocProvider(
-            create: (context) => TasksBloc(context.read<TaskRepository>()),
+    //Widget que recibe una clase que maneja la interaccion con una fuente de datos, le pasa todos los datos de la fuente
+    //de datos a los todos los widgets hijos
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<TaskRepository>(
+          create: (context) =>//La clase que maneja los datos, recibe una instancia de Firebase, que es donde se
+          //almacenan los datos
+          TaskRepository(taskDataProvider: TaskDataProvider(FirebaseFirestore.instance)),
+        ),
+        RepositoryProvider<ProjectRepository>(
+          create: (context) => ProjectRepository(
+            projectsDataProvider: ProjectsDataProvider(FirebaseFirestore.instance)
+          ),
+        ),
+      ],
+        child: MultiBlocProvider( //El BLoC provider maneja todos los eventos de la clase BLoC, la clase encargada de manejar
+          //el estado de las ventanas de la aplicacion, avisa cuando se ha realizado un cambio para que estos cambios se
+          //reflejen
+            providers: [
+              BlocProvider<TasksBloc>(
+                create: (context) => TasksBloc(context.read<TaskRepository>()),
+              ),
+              BlocProvider<ProjectsBloc>(
+                create: (context) => ProjectsBloc(context.read<ProjectRepository>()),
+              ),
+            ],
             child: MaterialApp(
               title: 'Task Manager',
               debugShowCheckedModeBanner: false,

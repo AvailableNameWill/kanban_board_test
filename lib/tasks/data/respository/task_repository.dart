@@ -1,6 +1,9 @@
 import 'package:kanban_board_test/tasks/data/local/data_sources/tasks_data_provider.dart';
 import 'package:kanban_board_test/tasks/data/local/model/task_model.dart';
 
+//Esta clase se encarga de llamar todos los metodos de tasks_data_provider (la clase que se encarga del CRUD)
+//en el main, recibe un objeto de tipo TasksDataProvider como parametro, esta clase a su vez se usa como parametro
+//del widget RepositoryProvider
 class TaskRepository{
   final TaskDataProvider taskDataProvider;
 
