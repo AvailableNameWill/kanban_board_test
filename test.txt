@@ -1,0 +1,140 @@
+import 'package:flutter/material.dart';
+
+class NewTasksScreen extends StatefulWidget {
+  @override
+  _NewTasksScreenState createState() => _NewTasksScreenState();
+}
+
+class _NewTasksScreenState extends State<NewTasksScreen> {
+  String? selectedProject;
+  String? selectedUser;
+  List<String> projectOptions = ["ProjectA", "ProjectB", "ProjectC"];
+  List<String> userOptions = ["User1", "User2", "User3"];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Create New Task"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Campo para el título de la tarea
+            Text("Title"),
+            TextField(
+              decoration: InputDecoration(
+                hintText: "Task Title",
+              ),
+            ),
+            SizedBox(height: 16),
+
+            // Campo para seleccionar proyecto
+            Text("Select project"),
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                setState(() {
+                  selectedProject = value;
+                });
+              },
+              itemBuilder: (BuildContext context) {
+                return projectOptions.map((String project) {
+                  return PopupMenuItem<String>(
+                    value: project,
+                    child: Text(project),
+                  );
+                }).toList();
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(selectedProject ?? "Select Project"),
+                    Icon(Icons.arrow_drop_down),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+
+            // Campo para seleccionar usuario
+            Text("Select User"),
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                setState(() {
+                  selectedUser = value;
+                });
+              },
+              itemBuilder: (BuildContext context) {
+                return userOptions.map((String user) {
+                  return PopupMenuItem<String>(
+                    value: user,
+                    child: Text(user),
+                  );
+                }).toList();
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(selectedUser ?? "Select User"),
+                    Icon(Icons.arrow_drop_down),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+
+            // Campo para la descripción de la tarea
+            Text("Description"),
+            TextField(
+              decoration: InputDecoration(
+                hintText: "Task Description",
+              ),
+              maxLines: 3,
+            ),
+            SizedBox(height: 24),
+
+            // Botones de cancelar y guardar
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.grey, // Color del botón de cancelar
+                  ),
+                  child: Text("Cancel"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Lógica para guardar la tarea
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.blue, // Color del botón de guardar
+                  ),
+                  child: Text("Save"),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+2

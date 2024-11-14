@@ -18,6 +18,16 @@ class TaskItemView extends StatefulWidget {
 }
 
 class _TaskItemViewState extends State<TaskItemView> {
+  late Color color;
+
+  @override
+  void initState() {
+    color = widget.taskModel.color != ""
+         ? Color(int.parse(widget.taskModel.color!, radix: 16))
+         : Colors.white;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -33,7 +43,7 @@ class _TaskItemViewState extends State<TaskItemView> {
                 Container(
                   margin: const EdgeInsets.only(right: 10),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: const BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.all(Radius.circular(2))),
+                  decoration: BoxDecoration(color: color, borderRadius: BorderRadius.all(Radius.circular(2))),
                   height: 100,
                   child: const Center(child: Text('')),
                 ),

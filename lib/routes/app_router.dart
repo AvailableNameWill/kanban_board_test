@@ -4,8 +4,10 @@ import 'package:kanban_board_test/splash_screen.dart';
 import 'package:kanban_board_test/tasks/data/local/model/project_model.dart';
 import 'package:kanban_board_test/tasks/data/local/model/task_model.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/home_page.dart';
+import 'package:kanban_board_test/tasks/presentation/pages/login.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/new_proyect_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/new_task_screen.dart';
+import 'package:kanban_board_test/tasks/presentation/pages/new_user_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/tasks_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/update_project_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/update_task_screen.dart';
@@ -21,6 +23,10 @@ Route onGenerateRoute(RouteSettings routeSettings) {
     case Pages.home:
       return MaterialPageRoute(
         builder: (context) => const HomePage(),
+      );
+    case Pages.loginPage:
+      return MaterialPageRoute(
+        builder: (context) => const Login(),
       );
     case Pages.createNewTask:
       return MaterialPageRoute(
@@ -39,6 +45,10 @@ Route onGenerateRoute(RouteSettings routeSettings) {
       final args = routeSettings.arguments as ProjectModel;
       return MaterialPageRoute(
         builder: (context) => UpdateProjectScreen(projectModel: args)
+      );
+    case Pages.createNewUser:
+      return MaterialPageRoute(
+        builder: (context) => const NewUserScreen(),
       );
     default:
       return MaterialPageRoute(

@@ -31,9 +31,11 @@ class TaskDataProvider {
           id: doc.id,
           title: doc['title'],
           description: doc['description'],
+          project_id: doc['project_id'],
           start_date_time: (doc['start_date_time'] as Timestamp).toDate(),
           stop_date_time: (doc['stop_date_time'] as Timestamp).toDate(),
-          completed: doc['completed']
+          completed: doc['completed'],
+          color: doc['color'],
         ));
       }
       /*final tasks = querySnapshots.docs.map((doc){

@@ -173,38 +173,6 @@ class _UpdateProjectScreenState extends State<UpdateProjectScreen> {
                               fillColor: kWhiteColor,
                               onChange: (value) {}),
                           const SizedBox(height: 5),
-                          buildText(
-                            'Color del proyecto',
-                            kBlackColor,
-                            textMedium,
-                            FontWeight.bold,
-                            TextAlign.start,
-                            TextOverflow.clip,
-                          ),
-                          const SizedBox(height: 5),
-                          GestureDetector(
-                            onTap: (){
-                              _openColorPicker(context);
-                            },
-                            child: Container(
-                              height: 50,
-                              decoration: BoxDecoration(
-                                  color: _selectedColor,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.grey.shade300)
-                              ),
-                              alignment: Alignment.center,
-                              child: buildText(
-                                  'Seleccionar color',
-                                  Colors.white,
-                                  textMedium,
-                                  FontWeight.w600,
-                                  TextAlign.center,
-                                  TextOverflow.clip
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 5),
                           SizedBox(
                             width: size.width,
                             child: ElevatedButton(
@@ -231,7 +199,7 @@ class _UpdateProjectScreenState extends State<UpdateProjectScreen> {
                                       completed: widget.projectModel.completed,
                                       start_date_time: _rangeStart,
                                       stop_date_time: _rangeEnd,
-                                      color: colorToHex(_selectedColor));
+                                      color: widget.projectModel.color);
                                   context.read<ProjectsBloc>().add(
                                       UpdateProjectEvent(projectModel: projectModel));
                                 },

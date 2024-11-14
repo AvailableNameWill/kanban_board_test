@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kanban_board_test/bloc_state_observer.dart';
+import 'package:kanban_board_test/tasks/presentation/bloc/auth_bloc.dart';
 import 'components/widgets.dart';
 import 'routes/pages.dart';
 import 'utils/color_palette.dart';
@@ -14,7 +17,8 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
-    startTimer();
+    //startTimer();
+    context.read<AuthBloc>().add(CheckSessionStarted());
     super.initState();
   }
 
@@ -22,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(const Duration(milliseconds: 3000), () {
       Navigator.pushNamedAndRemoveUntil(
         context,
-        Pages.home,
+        Pages.loginPage,
             (route) => false,
       );
     });
@@ -30,23 +34,43 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: kPrimaryColor,
-        body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Image.asset('assets/images/app_logo.png', width: 100,),
-                const SizedBox(height: 20,),
-                buildText('Everything Tasks', kWhiteColor, textBold,
-                    FontWeight.w600, TextAlign.center, TextOverflow.clip),
-                const SizedBox(
-                  height: 10,
-                ),
-                buildText('Schedule your week with ease', kWhiteColor, textTiny,
-                    FontWeight.normal, TextAlign.center, TextOverflow.clip),
-              ],
-            )));
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is SessionActive){
+          Navigator.pushNamedAndRemoveUntil(context,
+              Pages.home,
+              (route) => false,
+          );
+        }else if (state is SessionInactive){
+          Navigator.pushNamedAndRemoveUntil(context,
+            Pages.loginPage,
+                (route) => false,
+          );
+        }else if (state is AuthFailure){
+          Navigator.pushNamedAndRemoveUntil(context,
+            Pages.loginPage,
+                (route) => false,
+          );
+        }
+      },
+      child: Scaffold(
+          backgroundColor: kPrimaryColor,
+          body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset('assets/images/app_logo.png', width: 100,),
+                  const SizedBox(height: 20,),
+                  buildText('Everything Tasks', kWhiteColor, textBold,
+                      FontWeight.w600, TextAlign.center, TextOverflow.clip),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  buildText('Schedule your week with ease', kWhiteColor, textTiny,
+                      FontWeight.normal, TextAlign.center, TextOverflow.clip),
+                ],
+              ))),
+    );
   }
 }

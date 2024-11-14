@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:kanban_board_test/components/custom_app_bar.dart';
+import 'package:kanban_board_test/tasks/data/local/model/secure_storage_service.dart';
+import 'package:kanban_board_test/tasks/data/local/model/shared_preferences_service.dart';
 import 'package:kanban_board_test/tasks/presentation/bloc/tasks_bloc.dart';
 import 'package:kanban_board_test/components/build_text_field.dart';
 import 'package:kanban_board_test/tasks/presentation/widget/task_item_view.dart';
@@ -24,6 +26,8 @@ class TasksScreen extends StatefulWidget {
 class _TasksScreenState extends State<TasksScreen> {
   TextEditingController searchController = TextEditingController();
   bool _isExpanded = false;
+  SharedPreferencesService spService = SharedPreferencesService();
+  String? userName = '';
 
   void _toggleButtons(){
     setState(() {
@@ -34,7 +38,16 @@ class _TasksScreenState extends State<TasksScreen> {
   @override
   void initState() {
     context.read<TasksBloc>().add(FetchTaskEvent());
+    _loadUserName();
     super.initState();
+  }
+
+  void _loadUserName() async {
+    final name = await spService.getUserName();
+
+    setState(() {
+      userName = name;
+    });
   }
 
   @override
@@ -48,7 +61,7 @@ class _TasksScreenState extends State<TasksScreen> {
             child: Scaffold(
               backgroundColor: kWhiteColor,
               appBar: CustomAppBar(
-                title: 'Hi Jerome',
+                title: userName!,
                 showBackArrow: false,
                 actionWidgets: [
                   PopupMenuButton<int>(
@@ -266,7 +279,7 @@ class _TasksScreenState extends State<TasksScreen> {
                       Positioned.fill(
                         child: GestureDetector(
                           onTap: _toggleButtons,
-                          child: null
+                          child: Container(color: Colors.black.withOpacity(0.5)),
                         ),
                       ),
                   Column(
@@ -278,7 +291,7 @@ class _TasksScreenState extends State<TasksScreen> {
                           children: [
                             const Padding(
                               padding: EdgeInsets.only(right: 8.0),
-                              child: Text('Agregar Tarea', style: TextStyle(fontSize: 16, color: Colors.black),),
+                              child: Text('Agregar Tarea', style: TextStyle(fontSize: 16, color: Colors.white),),
                             ),
                             FloatingActionButton(
                               heroTag: 'add_task',
@@ -299,7 +312,7 @@ class _TasksScreenState extends State<TasksScreen> {
                           children: [
                             const Padding(
                               padding: const EdgeInsets.only(right: 8.0),
-                              child: Text("Agregar proyecto", style: TextStyle(fontSize: 16, color: Colors.black),),
+                              child: Text("Agregar proyecto", style: TextStyle(fontSize: 16, color: Colors.white),),
                             ),
                             FloatingActionButton(
                               heroTag: 'add_pro',
@@ -314,7 +327,28 @@ class _TasksScreenState extends State<TasksScreen> {
                             )
                           ],
                         ),
-                        const SizedBox(height: 10)
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(right: 8.0),
+                              child: Text('Agregar Usuario', style: TextStyle(fontSize: 16, color: Colors.white),),
+                            ),
+                            FloatingActionButton(
+                              heroTag: 'add_user',
+                              backgroundColor: Colors.white,
+                              onPressed: (){
+                                Navigator.pushNamed(context, Pages.createNewUser);
+                              },
+                              child: const Icon(
+                                Icons.add_circle,
+                                color: kPrimaryColor,
+                              ),
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 10),
                       ],
                       Container(
                         alignment: Alignment.bottomRight,

@@ -1,9 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kanban_board_test/tasks/data/local/data_sources/auth_data_provider.dart';
 import 'package:kanban_board_test/tasks/data/local/data_sources/projects_data_provider.dart';
+import 'package:kanban_board_test/tasks/data/local/data_sources/users_data_provider.dart';
+import 'package:kanban_board_test/tasks/data/local/model/secure_storage_service.dart';
+import 'package:kanban_board_test/tasks/data/local/model/shared_preferences_service.dart';
+import 'package:kanban_board_test/tasks/data/respository/auth_repository.dart';
 import 'package:kanban_board_test/tasks/data/respository/project_repository.dart';
+import 'package:kanban_board_test/tasks/data/respository/user_repository.dart';
+import 'package:kanban_board_test/tasks/presentation/bloc/auth_bloc.dart';
 import 'package:kanban_board_test/tasks/presentation/bloc/projects_bloc.dart';
+import 'package:kanban_board_test/tasks/presentation/bloc/users_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kanban_board_test/routes/app_router.dart';
 import 'package:kanban_board_test/routes/pages.dart';
@@ -51,6 +60,24 @@ class MyApp extends StatelessWidget {
             projectsDataProvider: ProjectsDataProvider(FirebaseFirestore.instance)
           ),
         ),
+        RepositoryProvider<UserRepository>(
+            create: (context) => UserRepository(
+                userDataProvider: UserDataProvider(
+                    FirebaseFirestore.instance,
+                    FirebaseAuth.instance
+                )
+            ),
+        ),
+        RepositoryProvider<AuthRepository>(
+            create: (context) => AuthRepository(
+              authDataProvider: AuthDataProvider(
+                  FirebaseAuth.instance,
+                  FirebaseFirestore.instance,
+                  SecureStorageService(),
+                  SharedPreferencesService(),
+              ),
+            ),
+        ),
       ],
         child: MultiBlocProvider( //El BLoC provider maneja todos los eventos de la clase BLoC, la clase encargada de manejar
           //el estado de las ventanas de la aplicacion, avisa cuando se ha realizado un cambio para que estos cambios se
@@ -61,6 +88,16 @@ class MyApp extends StatelessWidget {
               ),
               BlocProvider<ProjectsBloc>(
                 create: (context) => ProjectsBloc(context.read<ProjectRepository>()),
+              ),
+              BlocProvider<UsersBloc>(
+                  create: (context) => UsersBloc(context.read<UserRepository>()),
+              ),
+              BlocProvider<AuthBloc>(
+                  create: (context) => AuthBloc(
+                      authRepository: context.read<AuthRepository>(),
+                      sharedPreferencesService: SharedPreferencesService(),
+                      secureStorageService: SecureStorageService()
+                  )..add(CheckSessionStarted()),
               ),
             ],
             child: MaterialApp(

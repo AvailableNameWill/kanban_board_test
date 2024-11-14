@@ -13,6 +13,7 @@ import 'package:kanban_board_test/utils/util.dart';
 import '../../../components/widgets.dart';
 import '../../../routes/pages.dart';
 import '../../../utils/font_sizes.dart';
+import '../../data/local/model/shared_preferences_service.dart';
 import '../bloc/projects_bloc.dart';
 import '../widget/project_item_view.dart';
 
@@ -26,6 +27,8 @@ class ProjectsScreen extends StatefulWidget {
 class _ProjectsScreenState extends State<ProjectsScreen> {
   TextEditingController searchController = TextEditingController();
   bool _isExpanded = false;
+  SharedPreferencesService spService = SharedPreferencesService();
+  String? userName = '';
 
   void _toggleButtons(){
     setState(() {
@@ -36,7 +39,16 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   @override
   void initState() {
     context.read<ProjectsBloc>().add(FetchProjectEvent());
+    _loadUserName();
     super.initState();
+  }
+
+  void _loadUserName() async {
+    final name = await spService.getUserName();
+
+    setState(() {
+      userName = name;
+    });
   }
 
   @override
@@ -50,7 +62,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
             child: Scaffold(
               backgroundColor: kWhiteColor,
               appBar: CustomAppBar(
-                title: 'Hi Jerome',
+                title: userName!,
                 showBackArrow: false,
                 actionWidgets: [
                   PopupMenuButton<int>(
@@ -268,7 +280,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                     Positioned.fill(
                       child: GestureDetector(
                           onTap: _toggleButtons,
-                          child: null
+                          child: Container(color: Colors.black.withOpacity(0.5)),
                       ),
                     ),
                   Column(
@@ -280,7 +292,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                           children: [
                             const Padding(
                               padding: EdgeInsets.only(right: 8.0),
-                              child: Text('Agregar Tarea', style: TextStyle(fontSize: 16, color: Colors.black),),
+                              child: Text('Agregar Tarea', style: TextStyle(fontSize: 16, color: Colors.white),),
                             ),
                             FloatingActionButton(
                               heroTag: 'add_task_p',
@@ -301,7 +313,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                           children: [
                             const Padding(
                               padding: const EdgeInsets.only(right: 8.0),
-                              child: Text("Agregar proyecto", style: TextStyle(fontSize: 16, color: Colors.black),),
+                              child: Text("Agregar proyecto", style: TextStyle(fontSize: 16, color: Colors.white),),
                             ),
                             FloatingActionButton(
                               heroTag: 'add_pro_p',

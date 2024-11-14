@@ -1,3 +1,4 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:kanban_board_test/utils/font_sizes.dart';
 import '../../../components/custom_app_bar.dart';
 import '../../../utils/color_palette.dart';
 import '../../../utils/util.dart';
+import '../bloc/projects_bloc.dart';
 import '../bloc/tasks_bloc.dart';
 import '../../../components/build_text_field.dart';
 
@@ -32,6 +34,9 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
   DateTime? _selectedDay;
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
+  String? selectedProject = '';
+  String? selectedUser;
+  String? proyectColor = '#FFFFFFFF';
 
   _onRangeSelected(DateTime? start, DateTime? end, DateTime focusDay) {
     setState(() {
@@ -54,6 +59,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
     title.text = widget.taskModel.title;
     description.text = widget.taskModel.description;
     _selectedDay = _focusedDay;
+    selectedProject = widget.taskModel.project_id;
     _rangeStart = widget.taskModel.start_date_time;
     _rangeEnd = widget.taskModel.stop_date_time;
     super.initState();
@@ -163,12 +169,71 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                           const SizedBox(
                             height: 5,
                           ),
-                          BuildTextField(
-                              hint: "Debe ser un DropDownButton",
-                              controller: project,
-                              inputType: TextInputType.text,
-                              fillColor: kWhiteColor,
-                              onChange: (value) {}),
+                          BlocBuilder<ProjectsBloc, ProjectsState>(
+                            builder: (context, projectState){
+                              if(projectState is FetchProjectSuccess){
+                                final projects = projectState.projects;
+                                return DropdownButtonHideUnderline(
+                                  child: DropdownButton2<String>(
+                                    isExpanded: true,
+                                    hint: Text(selectedProject ?? "Seleccione un proyecto",
+                                      style: const TextStyle(fontSize: 16, color: kBlackColor),),
+                                    items: projects.map((project) {
+                                      return DropdownMenuItem<String>(
+                                        value: project.id,
+                                        child: Text(
+                                          project.title,
+                                          style: const TextStyle(fontSize: 16),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    value: (selectedProject != null && selectedProject!.isNotEmpty && projects.any((project) => project.id == selectedProject))
+                                      ? selectedProject
+                                      : null,
+                                    onChanged: (value){
+                                      setState(() {
+                                        selectedProject = value;
+                                        final _selectedProject = projects.firstWhere((project) => project.id == value);
+                                        proyectColor = _selectedProject.color;
+                                      });
+                                    },
+                                    buttonStyleData: ButtonStyleData(
+                                      height: 50,
+                                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: kGrey1),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                    dropdownStyleData: DropdownStyleData(
+                                      maxHeight: 200,
+                                      elevation: 8,
+                                      decoration: BoxDecoration(
+                                        color: kWhiteColor,
+                                        borderRadius: BorderRadius.circular(4),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 6,
+                                            offset: Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    iconStyleData: const IconStyleData(
+                                      icon: Icon(Icons.arrow_drop_down),
+                                      iconSize: 24,
+                                      iconEnabledColor: kBlackColor,
+                                    ),
+                                  ),
+                                );
+                              } else if (projectState is ProjectLoading){
+                                return CircularProgressIndicator();
+                              }else{
+                                return Text('Error al cargar los proyectos');
+                              }
+                            },
+                          ),
                           const SizedBox(
                             height: 5,
                           ),
@@ -232,8 +297,11 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                                       title: title.text,
                                       description: description.text,
                                       completed: widget.taskModel.completed,
+                                      project_id: selectedProject,
                                       start_date_time: _rangeStart,
-                                      stop_date_time: _rangeEnd);
+                                      stop_date_time: _rangeEnd,
+                                      color: proyectColor,
+                                  );
                                   context.read<TasksBloc>().add(
                                       UpdateTaskEvent(taskModel: taskModel));
                                 },
