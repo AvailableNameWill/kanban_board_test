@@ -10,6 +10,9 @@ class UserRepository{
     return await userDataProvider.getUsers();
   }
 
+  Future<Map<String, String>> getUserNamesMap(){
+    return userDataProvider.getUserNamesMap();
+  }
   Future<String> createNewUser(UserModel userModel, String email, String password) async{
     return await userDataProvider.createUser(userModel, email, password);
   }

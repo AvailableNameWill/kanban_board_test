@@ -328,7 +328,28 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                             )
                           ],
                         ),
-                        const SizedBox(height: 10)
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(right: 8.0),
+                              child: Text('Agregar Usuario', style: TextStyle(fontSize: 16, color: Colors.white),),
+                            ),
+                            FloatingActionButton(
+                              heroTag: 'add_user_p',
+                              backgroundColor: Colors.white,
+                              onPressed: (){
+                                Navigator.pushNamed(context, Pages.createNewUser);
+                              },
+                              child: const Icon(
+                                Icons.add_circle,
+                                color: kPrimaryColor,
+                              ),
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 10),
                       ],
                       Container(
                         alignment: Alignment.bottomRight,

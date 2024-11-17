@@ -8,6 +8,7 @@ import 'package:kanban_board_test/tasks/data/local/model/secure_storage_service.
 import 'package:kanban_board_test/tasks/data/local/model/shared_preferences_service.dart';
 import 'package:kanban_board_test/tasks/presentation/bloc/tasks_bloc.dart';
 import 'package:kanban_board_test/components/build_text_field.dart';
+import 'package:kanban_board_test/tasks/presentation/bloc/users_bloc.dart';
 import 'package:kanban_board_test/tasks/presentation/widget/task_item_view.dart';
 import 'package:kanban_board_test/utils/color_palette.dart';
 import 'package:kanban_board_test/utils/util.dart';
@@ -37,8 +38,9 @@ class _TasksScreenState extends State<TasksScreen> {
 
   @override
   void initState() {
-    context.read<TasksBloc>().add(FetchTaskEvent());
     _loadUserName();
+    context.read<TasksBloc>().add(FetchTaskEvent());
+    context.read<UsersBloc>().add(LoadUserNames());
     super.initState();
   }
 
@@ -204,40 +206,55 @@ class _TasksScreenState extends State<TasksScreen> {
 
                         if (state is FetchTasksSuccess) {
                           return state.tasks.isNotEmpty || state.isSearching
-                              ? Column(
-                            children: [
-                              BuildTextField(
-                                  hint: "Search recent task",
-                                  controller: searchController,
-                                  inputType: TextInputType.text,
-                                  prefixIcon: const Icon(
-                                    Icons.search,
-                                    color: kGrey2,
+                              ? BlocBuilder<UsersBloc, UsersState>(
+                            builder: (context, userState){
+                              Map<String, String> userNames = {};
+
+                              if(userState is UsersLoaded){
+                                userNames = userState.userNames;
+                                print(userNames);
+                              }
+                              return Column(
+                                children: [
+                                  BuildTextField(
+                                      hint: "Search recent task",
+                                      controller: searchController,
+                                      inputType: TextInputType.text,
+                                      prefixIcon: const Icon(
+                                        Icons.search,
+                                        color: kGrey2,
+                                      ),
+                                      fillColor: kWhiteColor,
+                                      onChange: (value) {
+                                        context.read<TasksBloc>().add(
+                                            SearchTaskEvent(keywords: value));
+                                      }),
+                                  const SizedBox(
+                                    height: 20,
                                   ),
-                                  fillColor: kWhiteColor,
-                                  onChange: (value) {
-                                    context.read<TasksBloc>().add(
-                                        SearchTaskEvent(keywords: value));
-                                  }),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              Expanded(
-                                  child: ListView.separated(
-                                    shrinkWrap: true,
-                                    itemCount: state.tasks.length,
-                                    itemBuilder: (context, index) {
-                                      return TaskItemView(
-                                          taskModel: state.tasks[index]);
-                                    },
-                                    separatorBuilder:
-                                        (BuildContext context, int index) {
-                                      return const Divider(
-                                        color: kGrey3,
-                                      );
-                                    },
-                                  ))
-                            ],
+                                  Expanded(
+                                      child: ListView.separated(
+                                        shrinkWrap: true,
+                                        itemCount: state.tasks.length,
+                                        itemBuilder: (context, index) {
+                                          final task = state.tasks[index];
+                                          print('t user_id: ' + task.project_id!);
+                                          final userName = userNames[task.user_id] ?? 'Sin usuario asignado';
+                                          return TaskItemView(
+                                            taskModel: task,
+                                            userName: userName,
+                                          );
+                                        },
+                                        separatorBuilder:
+                                            (BuildContext context, int index) {
+                                          return const Divider(
+                                            color: kGrey3,
+                                          );
+                                        },
+                                      ))
+                                ],
+                              );
+                            },
                           )
                               : Center(
                             child: Column(
@@ -276,12 +293,12 @@ class _TasksScreenState extends State<TasksScreen> {
                 alignment: Alignment.bottomRight,
                 children: [
                   if(_isExpanded)
-                      Positioned.fill(
-                        child: GestureDetector(
-                          onTap: _toggleButtons,
-                          child: Container(color: Colors.black.withOpacity(0.5)),
-                        ),
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onTap: _toggleButtons,
+                        child: Container(color: Colors.black.withOpacity(0.5)),
                       ),
+                    ),
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -366,16 +383,3 @@ class _TasksScreenState extends State<TasksScreen> {
             )));
   }
 }
-
-/*
-*
-FloatingActionButton(
-                  child: const Icon(
-                    Icons.add_circle,
-                    color: kPrimaryColor,
-                  ),
-                  onPressed: () {
-                    Navigator.pushNamed(context, Pages.createNewTask);
-                  })
-*
-* */

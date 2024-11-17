@@ -32,6 +32,7 @@ class TaskDataProvider {
           title: doc['title'],
           description: doc['description'],
           project_id: doc['project_id'],
+          user_id: doc['user_id'],
           start_date_time: (doc['start_date_time'] as Timestamp).toDate(),
           stop_date_time: (doc['stop_date_time'] as Timestamp).toDate(),
           completed: doc['completed'],

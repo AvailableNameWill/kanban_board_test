@@ -11,7 +11,8 @@ import '../bloc/tasks_bloc.dart';
 
 class TaskItemView extends StatefulWidget {
   final TaskModel taskModel;
-  const TaskItemView({super.key, required this.taskModel});
+  final String userName;
+  const TaskItemView({super.key, required this.taskModel, required this.userName});
 
   @override
   State<TaskItemView> createState() => _TaskItemViewState();
@@ -23,7 +24,7 @@ class _TaskItemViewState extends State<TaskItemView> {
   @override
   void initState() {
     color = widget.taskModel.color != ""
-         ? Color(int.parse(widget.taskModel.color!, radix: 16))
+         ? Color(int.parse(widget.taskModel.color!.replaceFirst('#', ''), radix: 16))
          : Colors.white;
     super.initState();
   }
@@ -54,6 +55,8 @@ class _TaskItemViewState extends State<TaskItemView> {
                           id: widget.taskModel.id,
                           title: widget.taskModel.title,
                           description: widget.taskModel.description,
+                          project_id: widget.taskModel.project_id,
+                          user_id: widget.taskModel.user_id,
                           completed: !widget.taskModel.completed,
                           start_date_time: widget.taskModel.start_date_time,
                           stop_date_time: widget.taskModel.stop_date_time);
@@ -181,7 +184,7 @@ class _TaskItemViewState extends State<TaskItemView> {
               ],
             ),
         ),
-        const Text('User ID'),
+        Text(widget.userName),
       ],
     );
   }

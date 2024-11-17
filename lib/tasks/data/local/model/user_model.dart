@@ -24,7 +24,7 @@ class UserModel{
     return UserModel(
         id: json['id'] as String,
         name: json['name'] as String,
-        userType:  json['userType'] as String
+        userType: json['userType'] as String
     );
   }
 

@@ -39,3 +39,9 @@ final class ReauthenticationRequired extends UsersState{
 
   ReauthenticationRequired({ required this.uid, required this.userModel });
 }
+
+final class UsersLoaded extends UsersState{
+  final Map<String, String> userNames;
+
+  UsersLoaded({ required this.userNames });
+}

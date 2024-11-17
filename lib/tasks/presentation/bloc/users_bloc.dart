@@ -18,6 +18,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState>{
     //on<SortUserEvent>(_sortUsers);
     on<SearchUserEvent>(_searchUsers);
     on<CompleteUserCreationEvent>(_completeUserCreation);
+    on<LoadUserNames>(_onLoadUserNames);
   }
   
   _addNewUser(AddNewUserEvent event, Emitter<UsersState> emit) async{
@@ -57,6 +58,16 @@ class UsersBloc extends Bloc<UsersEvent, UsersState>{
       return emit(FetchUserSuccess(users: users));
     }catch(exception){
       emit(LoadUserFailure(error: exception.toString()));
+    }
+  }
+
+  void _onLoadUserNames(LoadUserNames event, Emitter<UsersState> emit) async{
+    emit(UsersLoading());
+    try{
+      final userNames = await userRepository.getUserNamesMap();
+      emit(UsersLoaded(userNames: userNames));
+    }catch(error){
+      emit(LoadUserFailure(error: error.toString()));
     }
   }
   

@@ -1,0 +1,99 @@
+//validar fecha de inicio de un proyecto:
+enabledDayPredicate: (day) {
+  final today = DateTime.now();
+  final todayNormalized = DateTime(today.year, today.month, today.day);
+  final dayNormalized = DateTime(day.year, day.month, day.day);
+
+  // Solo permite seleccionar días a partir de hoy
+  return dayNormalized.isAtSameMomentAs(todayNormalized) || dayNormalized.isAfter(todayNormalized);
+},
+
+//Validar que la fecha final de una tarea no supere la fecha final del proyecto asignado
+void validateTaskDatesWithProject(DateTime? taskStart, DateTime? taskEnd, DateTime? projectEnd) {
+  if (projectEnd != null) {
+    // Si la fecha final de la tarea supera la fecha final del proyecto, ajusta la tarea
+    if (taskEnd != null && taskEnd.isAfter(projectEnd)) {
+      taskEnd = projectEnd;
+    }
+
+    // Si la fecha de inicio de la tarea es después de la fecha de fin del proyecto, no es válido
+    if (taskStart != null && taskStart.isAfter(projectEnd)) {
+      throw Exception("La fecha de inicio de la tarea no puede ser posterior a la fecha final del proyecto.");
+    }
+  }
+}
+
+//
+Entendido. Aquí te dejo las validaciones y los pasos necesarios para implementar cada uno de los escenarios que describes. Los requisitos se dividen en cuatro partes:
+
+1. Validar que la fecha de inicio de un proyecto no sea anterior al día actual
+Esta validación ya es similar a la que hicimos anteriormente para las tareas. Puedes agregar una validación al seleccionar la fecha de inicio del proyecto:
+
+dart
+Copy code
+enabledDayPredicate: (day) {
+  final today = DateTime.now();
+  final todayNormalized = DateTime(today.year, today.month, today.day);
+  final dayNormalized = DateTime(day.year, day.month, day.day);
+
+  // Solo permite seleccionar días a partir de hoy
+  return dayNormalized.isAtSameMomentAs(todayNormalized) || dayNormalized.isAfter(todayNormalized);
+},
+Este código se puede aplicar al TableCalendar del selector de fecha para proyectos.
+
+2. Validar que la fecha final de una tarea no supere la fecha final del proyecto asignado
+En este caso, puedes hacer la validación al momento de guardar la tarea. Si existe un proyecto seleccionado, verifica que la fecha final de la tarea esté dentro del rango permitido por el proyecto. Si no es así, ajusta automáticamente la fecha final de la tarea.
+
+dart
+Copy code
+void validateTaskDatesWithProject(DateTime? taskStart, DateTime? taskEnd, DateTime? projectEnd) {
+  if (projectEnd != null) {
+    // Si la fecha final de la tarea supera la fecha final del proyecto, ajusta la tarea
+    if (taskEnd != null && taskEnd.isAfter(projectEnd)) {
+      taskEnd = projectEnd;
+    }
+
+    // Si la fecha de inicio de la tarea es después de la fecha de fin del proyecto, no es válido
+    if (taskStart != null && taskStart.isAfter(projectEnd)) {
+      throw Exception("La fecha de inicio de la tarea no puede ser posterior a la fecha final del proyecto.");
+    }
+  }
+}
+Llama a esta función antes de guardar la tarea para validar las fechas.
+
+//No permitir modificar la fecha de inicio de una tarea si ya pasó
+enabledDayPredicate: (day) {
+  final today = DateTime.now();
+  final todayNormalized = DateTime(today.year, today.month, today.day);
+  final dayNormalized = DateTime(day.year, day.month, day.day);
+
+  // Si la fecha de inicio de la tarea ya pasó, no permitir modificarla
+  if (_rangeStart != null && _rangeStart!.isBefore(todayNormalized)) {
+    return false; // Deshabilitar todas las fechas
+  }
+
+  // Permitir seleccionar solo días a partir de hoy
+  return dayNormalized.isAtSameMomentAs(todayNormalized) || dayNormalized.isAfter(todayNormalized);
+},
+
+
+//Validar al asignar un proyecto a una tarea (en el modo de edición),
+Cuando se asigna un proyecto a una tarea en modo de edición, necesitas validar:
+
+Que la fecha final de la tarea no exceda la fecha final del proyecto.
+Ajustar automáticamente la fecha final de la tarea si es necesario.
+void onProjectAssigned(DateTime? projectEnd) {
+  setState(() {
+    if (_rangeEnd != null && projectEnd != null) {
+      // Si la fecha final de la tarea es mayor a la fecha final del proyecto, ajustarla
+      if (_rangeEnd!.isAfter(projectEnd)) {
+        _rangeEnd = projectEnd;
+      }
+
+      // Si la fecha de inicio de la tarea es mayor a la fecha final del proyecto, lanzar error
+      if (_rangeStart != null && _rangeStart!.isAfter(projectEnd)) {
+        throw Exception("La fecha de inicio de la tarea no puede ser posterior a la fecha final del proyecto.");
+      }
+    }
+  });
+}

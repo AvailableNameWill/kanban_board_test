@@ -25,10 +25,27 @@ class UserDataProvider{
       }
 
       /*Ordenar los usuarios*/
-
+      print(users.length);
       return users;
     }catch(exception){
       throw Exception(handleException(exception));
+    }
+  }
+
+  Future<Map<String, String>> getUserNamesMap() async{
+    try{
+      final querySnapshot = await firestore.collection('users').get();
+      final Map<String, String> userNames = {};
+
+      for (var doc in querySnapshot.docs){
+        final uid = doc.id;
+        final uName = doc['name'];
+        userNames[uid] = uName;
+      }
+
+      return userNames;
+    }catch(exception){
+      throw Exception(handleException(exception.toString()));
     }
   }
 

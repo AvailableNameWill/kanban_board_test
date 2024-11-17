@@ -43,8 +43,18 @@ class _NewProjectScreenState extends State<NewProjectScreen> {
     setState(() {
       _selectedDay = null;
       _focusedDay = focusDay;
-      _rangeStart = start;
-      _rangeEnd = end;
+
+      if(start != null){
+        _rangeStart = DateTime(start.year, start.month, start.day, 12, 0, 0);
+      }else{
+        _rangeStart = null;
+      }
+
+      if(end != null){
+        _rangeEnd = DateTime(end.year, end.month, end.day, 12, 0, 0);
+      }else{
+        _rangeEnd = null;
+      }
     });
   }
 
@@ -102,6 +112,12 @@ class _NewProjectScreenState extends State<NewProjectScreen> {
                               }
                             },
                             onRangeSelected: _onRangeSelected,
+                            enabledDayPredicate: (day){
+                              final today = DateTime.now();
+                              final todayNormalized = DateTime(today.year, today.month, today.day);
+                              final dayNormalized = DateTime(day.year, day.month, day.day);
+                              return dayNormalized.isAtSameMomentAs(todayNormalized) || dayNormalized.isAfter(todayNormalized);
+                            },
                           ),
                           const SizedBox(height: 5),
                           Container(

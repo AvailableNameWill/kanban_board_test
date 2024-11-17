@@ -50,3 +50,5 @@ class CompleteUserCreationEvent extends UsersEvent{
 
   CompleteUserCreationEvent({ required this.uid, required this.userModel });
 }
+
+class LoadUserNames extends UsersEvent{}

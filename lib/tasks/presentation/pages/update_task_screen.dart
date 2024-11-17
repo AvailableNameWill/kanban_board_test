@@ -13,6 +13,7 @@ import '../../../utils/util.dart';
 import '../bloc/projects_bloc.dart';
 import '../bloc/tasks_bloc.dart';
 import '../../../components/build_text_field.dart';
+import '../bloc/users_bloc.dart';
 
 class UpdateTaskScreen extends StatefulWidget {
   final TaskModel taskModel;
@@ -35,7 +36,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
   String? selectedProject = '';
-  String? selectedUser;
+  String? selectedUser = '';
   String? proyectColor = '#FFFFFFFF';
 
   _onRangeSelected(DateTime? start, DateTime? end, DateTime focusDay) {
@@ -60,8 +61,11 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
     description.text = widget.taskModel.description;
     _selectedDay = _focusedDay;
     selectedProject = widget.taskModel.project_id;
+    selectedUser = selectedUser = widget.taskModel.user_id != null && widget.taskModel.user_id!.isNotEmpty ? widget.taskModel.user_id : null;
     _rangeStart = widget.taskModel.start_date_time;
     _rangeEnd = widget.taskModel.stop_date_time;
+    proyectColor = widget.taskModel.color;
+    context.read<UsersBloc>().add(FetchUserEvent());
     super.initState();
   }
 
@@ -238,7 +242,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                             height: 5,
                           ),
                           buildText(
-                              'Select User',
+                              'Seleccione un usuario',
                               kBlackColor,
                               textMedium,
                               FontWeight.bold,
@@ -247,12 +251,73 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                           const SizedBox(
                             height: 5,
                           ),
-                          BuildTextField(
-                              hint: "Debe ser un DropDownButton",
-                              controller: user,
-                              inputType: TextInputType.text,
-                              fillColor: kWhiteColor,
-                              onChange: (value) {}),
+                          BlocBuilder<UsersBloc, UsersState>(
+                            builder: (context, userState){
+                              if(userState is FetchUserSuccess){
+                                final users = userState.users;
+                                print("Usuarios cargados: ${users.map((user) => user.name).toList()}");
+                                return DropdownButtonHideUnderline(
+                                  child: DropdownButton2<String>(
+                                    isExpanded: true,
+                                    hint: Text(selectedUser ?? "Seleccione un usuario",
+                                      style: const TextStyle(fontSize: 16, color: kBlackColor),),
+                                    items: users.map((user) {
+                                      return DropdownMenuItem<String>(
+                                        value: user.id,
+                                        child: Text(
+                                          user.name,
+                                          style: const TextStyle(fontSize: 16),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    value: users.any((user) => user.id == selectedUser) ? selectedUser : null,
+                                    onChanged: (value){
+                                      setState(() {
+                                        selectedUser = value;
+                                      });
+                                    },
+                                    buttonStyleData: ButtonStyleData(
+                                      height: 50,
+                                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: kGrey1),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                    dropdownStyleData: DropdownStyleData(
+                                      maxHeight: 200,
+                                      elevation: 8,
+                                      decoration: BoxDecoration(
+                                        color: kWhiteColor,
+                                        borderRadius: BorderRadius.circular(4),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 6,
+                                            offset: Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    iconStyleData: const IconStyleData(
+                                      icon: Icon(Icons.arrow_drop_down),
+                                      iconSize: 24,
+                                      iconEnabledColor: kBlackColor,
+                                    ),
+                                  ),
+                                );
+                              } else if (userState is UsersLoading){
+                                print('cargando usuarios');
+                                return CircularProgressIndicator();
+                              }else if(userState is LoadUserFailure){
+                                print('Error al cargar los usuarios');
+                                return Text('Error al cargar los usuarios');
+                              }else{
+                                print('error inesperado');
+                                return Text('Error inesperado');
+                              }
+                            },
+                          ),
                           const SizedBox(
                             height: 5,
                           ),
@@ -298,6 +363,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                                       description: description.text,
                                       completed: widget.taskModel.completed,
                                       project_id: selectedProject,
+                                      user_id: selectedUser,
                                       start_date_time: _rangeStart,
                                       stop_date_time: _rangeEnd,
                                       color: proyectColor,

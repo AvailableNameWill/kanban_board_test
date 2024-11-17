@@ -5,7 +5,7 @@ class TaskModel {
   String title; // Titulo de la tarea
   String description; //Descripcion de la tarea
   String? project_id; //ID del proyecto al que esta ligada la tarea
-  //String? user_id; //ID del usuario que esta ligado a la tarea
+  String? user_id; //ID del usuario que esta ligado a la tarea
   DateTime? start_date_time; //Fecha de inicio de la tarea
   DateTime? stop_date_time; //Fecha de fin de la tarea
   bool completed;
@@ -18,7 +18,7 @@ class TaskModel {
     required this.start_date_time,
     required this.stop_date_time,
     this.project_id = '',
-    //this.user_id,
+    this.user_id = '',
     this.completed = false,
     this.color = "#FFFFFFFF",
   });
@@ -29,6 +29,7 @@ class TaskModel {
       'title': title,
       'description': description,
       'project_id': project_id,
+      'user_id' : user_id,
       'completed': completed,
       'start_date_time': start_date_time != null ? Timestamp.fromDate(start_date_time!) : null,
       'stop_date_time': stop_date_time != null ? Timestamp.fromDate(stop_date_time!) : null,
@@ -43,6 +44,7 @@ class TaskModel {
       title: json['title'] as String,
       description: json['description'] as String,
       project_id: json['project_id'] as String,
+      user_id: json['user_id'] as String,
       completed: json['completed'] as bool,
       start_date_time: json['start_date_time'] != null
         ? DateTime.parse(json['start_date_time'])
@@ -62,6 +64,7 @@ class TaskModel {
       title: data['title'] ?? '',
       description: data['description'] ?? '',
         project_id: data['project_id'] as String,
+      user_id: data['user_id'] as String,
       completed: data['completed'] ?? false,
       start_date_time: data['start_date_time'] != null
         ? DateTime.parse(data['start_date_time'])
@@ -76,7 +79,7 @@ class TaskModel {
   @override
   String toString() {
     return 'TaskModel{id: $id, title: $title, description: $description, '
-        'project_id: $project_id,  startDateTime: $start_date_time, stopDateTime: $stop_date_time, '
+        'project_id: $project_id, user_id: $user_id, startDateTime: $start_date_time, stopDateTime: $stop_date_time, '
         'completed: $completed, color: $color}';
   }
 }
