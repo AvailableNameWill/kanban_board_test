@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kanban_board_test/tasks/presentation/bloc/projects_bloc.dart';
+import 'package:kanban_board_test/tasks/presentation/pages/new_proyect_screen.dart';
+import 'package:kanban_board_test/tasks/presentation/pages/new_user_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/projects_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/tasks_screen.dart';
 
@@ -17,6 +19,8 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _screens = [
     const TasksScreen(),
     const ProjectsScreen(),
+    const NewUserScreen(),
+    const NewProjectScreen()
   ];
 
   void _onTabTapped(int index){
@@ -43,6 +47,14 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.folder),
             label: 'Proyectos'
+          ),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Usuarios'
+          ),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.account_box),
+              label: 'Mi usuario'
           )
         ],
       ),

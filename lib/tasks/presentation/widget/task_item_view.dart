@@ -6,13 +6,24 @@ import '../../../routes/pages.dart';
 import '../../../utils/color_palette.dart';
 import '../../../utils/font_sizes.dart';
 import '../../../utils/util.dart';
+import '../../data/local/model/secure_storage_service.dart';
 import '../../data/local/model/task_model.dart';
 import '../bloc/tasks_bloc.dart';
 
 class TaskItemView extends StatefulWidget {
   final TaskModel taskModel;
   final String userName;
-  const TaskItemView({super.key, required this.taskModel, required this.userName});
+  VoidCallback? onUpdateTaskScreenOpen;
+  bool? updateScreenOpened;
+  final String userType;
+  TaskItemView({
+    super.key,
+    required this.taskModel,
+    required this.userName,
+    this.onUpdateTaskScreenOpen,
+    this.updateScreenOpened = false,
+    required this.userType
+  });
 
   @override
   State<TaskItemView> createState() => _TaskItemViewState();
@@ -20,13 +31,39 @@ class TaskItemView extends StatefulWidget {
 
 class _TaskItemViewState extends State<TaskItemView> {
   late Color color;
+  bool hasUser = false;
+  String userId = '';
+  SecureStorageService ssService = SecureStorageService();
 
   @override
   void initState() {
     color = widget.taskModel.color != ""
          ? Color(int.parse(widget.taskModel.color!.replaceFirst('#', ''), radix: 16))
          : Colors.white;
+    _loadUserName();
     super.initState();
+  }
+
+  void _loadUserName() async {
+    final id = await ssService.getUid();
+
+    setState(() {
+      userId = id;
+      hasUser = validateTaskHasUser();
+    });
+  }
+
+  bool validateTaskHasUser(){
+    print('UserId: ' + userId);
+    print('Task uid: ' + widget.taskModel.user_id!);
+    if(widget.userType == 'Administrador') {return false;}
+    if (widget.taskModel.user_id == userId || widget.taskModel.user_id == '' || widget.taskModel.user_id!.isEmpty || widget.taskModel.user_id == null){
+      print('false');
+      return false;
+    }
+    print('true');
+    //}
+    return true;
   }
 
   @override
@@ -84,11 +121,18 @@ class _TaskItemViewState extends State<TaskItemView> {
                             ),
                             color: kWhiteColor,
                             elevation: 1,
-                            onSelected: (value) {
+                            onSelected: (value) async {
                               switch (value) {
                                 case 0:
                                   {
-                                    Navigator.pushNamed(context, Pages.updateTask, arguments: widget.taskModel);
+                                    //widget.onUpdateTaskScreenOpen?.call();
+                                    print('Update task window opened');
+                                    await Navigator.pushNamed(context, Pages.updateTask,
+                                        arguments: {
+                                      'taskModel' : widget.taskModel,
+                                      'userType' : widget.userType
+                                     }
+                                    );
                                     break;
                                   }
                                 case 1:
@@ -101,6 +145,7 @@ class _TaskItemViewState extends State<TaskItemView> {
                             },
                             itemBuilder: (BuildContext context) {
                               return [
+                                if (!hasUser)
                                 PopupMenuItem<int>(
                                   value: 0,
                                   child: Row(
@@ -122,6 +167,7 @@ class _TaskItemViewState extends State<TaskItemView> {
                                     ],
                                   ),
                                 ),
+                                if (widget.userType == 'Administrador')
                                 PopupMenuItem<int>(
                                   value: 1,
                                   child: Row(

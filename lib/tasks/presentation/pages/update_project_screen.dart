@@ -39,8 +39,18 @@ class _UpdateProjectScreenState extends State<UpdateProjectScreen> {
     setState(() {
       _selectedDay = null;
       _focusedDay = focusDay;
-      _rangeStart = start;
-      _rangeEnd = end;
+
+      if (start != null){
+        _rangeStart = DateTime(start.year, start.month, start.day, 12, 0, 0);
+      }else{
+        _rangeStart = null;
+      }
+
+      if (end !=null){
+        _rangeEnd = DateTime(end.year, end.month, end.day, 12, 0, 0);
+      }else{
+        _rangeEnd = null;
+      }
     });
   }
 
@@ -53,12 +63,12 @@ class _UpdateProjectScreenState extends State<UpdateProjectScreen> {
 
   @override
   void initState() {
-    title.text = widget.projectModel.title;
-    description.text = widget.projectModel.description;
+    title.text = widget.projectModel.title != null ? widget.projectModel.title! : 'Titulo';
+    description.text = widget.projectModel.description! ?? 'Descripcion';
     _selectedDay = _focusedDay;
     _rangeStart = widget.projectModel.start_date_time;
     _rangeEnd = widget.projectModel.stop_date_time;
-    _selectedColor = Color(int.parse(widget.projectModel.color, radix: 16));
+    _selectedColor = Color(int.parse(widget.projectModel.color!, radix: 16));
     super.initState();
   }
 
@@ -117,6 +127,12 @@ class _UpdateProjectScreenState extends State<UpdateProjectScreen> {
                               }
                             },
                             onRangeSelected: _onRangeSelected,
+                            enabledDayPredicate: (day){
+                              final today = DateTime.now();
+                              final todayNormalized = DateTime(today.year, today.month, today.day);
+                              final dayNormalized = DateTime(day.year, day.month, day.day);
+                              return dayNormalized.isAtSameMomentAs(todayNormalized) || dayNormalized.isAfter(todayNormalized);
+                            },
                           ),
                           const SizedBox(height: 5),
                           Container(

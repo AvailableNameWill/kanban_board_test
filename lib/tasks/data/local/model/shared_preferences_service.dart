@@ -19,6 +19,11 @@ class SharedPreferencesService{
     return prefs.getString('name');
   }
 
+  Future<String?> getUserType() async{
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userType');
+  }
+
   Future<void> deleteUserInfo() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('name');

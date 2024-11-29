@@ -33,9 +33,11 @@ Route onGenerateRoute(RouteSettings routeSettings) {
         builder: (context) => const NewTaskScreen(),
       );
     case Pages.updateTask:
-      final args = routeSettings.arguments as TaskModel;
+      final args = routeSettings.arguments as Map<String, dynamic>;
+      final taskModel = args['taskModel'] as TaskModel;
+      final userType = args['userType'] as String;
       return MaterialPageRoute(
-        builder: (context) => UpdateTaskScreen(taskModel: args),
+        builder: (context) => UpdateTaskScreen(taskModel: taskModel, userType: userType),
       );
     case Pages.createNewProject:
       return MaterialPageRoute(

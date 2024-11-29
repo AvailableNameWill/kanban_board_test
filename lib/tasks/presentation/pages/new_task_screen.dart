@@ -11,8 +11,10 @@ import 'package:kanban_board_test/utils/util.dart';
 
 import '../../../components/custom_app_bar.dart';
 import '../../../utils/color_palette.dart';
+import '../../data/local/model/project_model.dart';
 import '../bloc/tasks_bloc.dart';
 import '../../../components/build_text_field.dart';
+import '../bloc/users_bloc.dart';
 
 class NewTaskScreen extends StatefulWidget {
   const NewTaskScreen({super.key});
@@ -31,8 +33,11 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
   String? selectedProject = '';
-  String? selectedUser;
+  String? selectedUser = '';
   String? proyectColor = '#FFFFFFFF';
+  DateTime? _projectEnd;
+  DateTime? _projectStart;
+  ProjectModel _projectModel = ProjectModel(id: null, title: null, description: null, start_date_time: null, stop_date_time: null, color: null);
 
   final List<String> projectOptions = ["ProjectA", "ProjectB", "ProjectC"];
   final List<String> userOptions = ["User1", "User2", "User3"];
@@ -40,6 +45,9 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
   @override
   void initState() {
     _selectedDay = _focusedDay;
+    context.read<UsersBloc>().add(FetchUserEvent());
+    _projectEnd = null;
+    _projectStart = null;
     super.initState();
   }
 
@@ -60,6 +68,36 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
           _rangeEnd = null;
         }
       });
+  }
+
+  bool validateTaskDateWithProject(BuildContext context, ProjectModel model){
+    bool datePassed = false;
+    _projectEnd = model.stop_date_time;
+    _projectStart = model.start_date_time;
+
+    if ( (_projectEnd != null && _projectStart != null) && (_rangeStart != null && _rangeStart!.isAfter(_projectEnd!))){
+      _rangeStart = _projectStart;
+      _rangeEnd = _projectEnd;
+      print('Fecha inicial de la tarea supera a la fecha final del proyecto');
+      datePassed = true;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('La fecha de inicio de la tarea es posterior a la fecha final del proyecto.'),
+        backgroundColor: kRed,
+      ));
+      return datePassed;
+    }
+
+    if( _projectEnd != null && (_rangeEnd != null && _rangeEnd!.isAfter(_projectEnd!))){
+      _rangeEnd = _projectEnd;
+      datePassed = true;
+      print('Fecha final de la tarea supera a la fecha final del proyecto');
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('La fecha final de la tarea es posterior a la fecha final del proyecto.'),
+        backgroundColor: kRed,
+      ));
+      return datePassed;
+    }
+    return datePassed;
   }
 
   @override
@@ -175,6 +213,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                             builder: (context, projectState){
                               if(projectState is FetchProjectSuccess){
                                 final projects = projectState.projects;
+
                                 return DropdownButtonHideUnderline(
                                   child: DropdownButton2<String>(
                                     isExpanded: true,
@@ -184,7 +223,9 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                                       return DropdownMenuItem<String>(
                                           value: project.id,
                                           child: Text(
-                                            project.title,
+                                            project.title != null
+                                            ? project.title!
+                                            : 'Error al cargar el titulo',
                                             style: const TextStyle(fontSize: 16),
                                           ),
                                       );
@@ -193,8 +234,13 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                                     onChanged: (value){
                                       setState(() {
                                         selectedProject = value;
+                                        print(selectedProject);
                                         final _selectedProject = projects.firstWhere((project) => project.id == value);
                                         proyectColor = _selectedProject.color;
+                                        _projectStart = _selectedProject.start_date_time;
+                                        _projectEnd = _selectedProject.stop_date_time;
+                                        _projectModel = _selectedProject;
+                                        validateTaskDateWithProject(context, _selectedProject);
                                       });
                                     },
                                     buttonStyleData: ButtonStyleData(
@@ -247,54 +293,72 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                           const SizedBox(
                             height: 5,
                           ),
-                          DropdownButtonHideUnderline(
-                            child: DropdownButton2<String>(
-                              isExpanded: true,
-                              hint: Text(
-                                selectedUser ?? 'Seleccione un usuario',
-                                style: const TextStyle( fontSize: 16, color: kBlackColor),
-                              ),
-                              items: userOptions.map((user) => DropdownMenuItem<String>(
-                                value: user,
-                                child: Text(
-                                  user, style: const TextStyle(fontSize: 16),
-                                ),
-                              )).toList(),
-                              value: selectedUser,
-                              onChanged: (value){
-                                setState(() {
-                                  selectedUser = value;
-                                });
-                              },
-                              buttonStyleData: ButtonStyleData(
-                                height: 50,
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: kGrey1),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                              dropdownStyleData: DropdownStyleData(
-                                maxHeight: 200,
-                                elevation: 8,
-                                decoration: BoxDecoration(
-                                  color: kWhiteColor,
-                                  borderRadius: BorderRadius.circular(4),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      blurRadius: 6,
-                                      offset: Offset(0, 2),
+                          BlocBuilder<UsersBloc, UsersState>(
+                            builder: (context, userState){
+                              if(userState is FetchUserSuccess){
+                                final users = userState.users;
+                                print("Usuarios cargados: ${users.map((user) => user.name).toList()}");
+                                return DropdownButtonHideUnderline(
+                                  child: DropdownButton2<String>(
+                                    isExpanded: true,
+                                    hint: Text(selectedUser ?? "Seleccione un usuario",
+                                      style: const TextStyle(fontSize: 16, color: kBlackColor),),
+                                    items: users.map((user) {
+                                      return DropdownMenuItem<String>(
+                                        value: user.id,
+                                        child: Text(
+                                          user.name,
+                                          style: const TextStyle(fontSize: 16),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    value: users.any((user) => user.id == selectedUser) ? selectedUser : null,
+                                    onChanged: (value){
+                                      setState(() {
+                                        selectedUser = value;
+                                      });
+                                    },
+                                    buttonStyleData: ButtonStyleData(
+                                      height: 50,
+                                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: kGrey1),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                              iconStyleData: const IconStyleData(
-                                  icon: Icon(Icons.arrow_drop_down),
-                                  iconSize: 24,
-                                  iconEnabledColor: kBlackColor
-                              ),
-                            ),
+                                    dropdownStyleData: DropdownStyleData(
+                                      maxHeight: 200,
+                                      elevation: 8,
+                                      decoration: BoxDecoration(
+                                        color: kWhiteColor,
+                                        borderRadius: BorderRadius.circular(4),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 6,
+                                            offset: Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    iconStyleData: const IconStyleData(
+                                      icon: Icon(Icons.arrow_drop_down),
+                                      iconSize: 24,
+                                      iconEnabledColor: kBlackColor,
+                                    ),
+                                  ),
+                                );
+                              } else if (userState is UsersLoading){
+                                print('cargando usuarios');
+                                return CircularProgressIndicator();
+                              }else if(userState is LoadUserFailure){
+                                print('Error al cargar los usuarios');
+                                return Text('Error al cargar los usuarios');
+                              }else{
+                                print('error inesperado');
+                                return Text('Error inesperado');
+                              }
+                            },
                           ),
                           const SizedBox(
                             height: 5,
@@ -370,6 +434,14 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                                       ),
                                     ),
                                     onPressed: () {
+                                      if (selectedProject != null){
+                                        print('selected project no es null');
+                                        bool datePassed = validateTaskDateWithProject(context, _projectModel);
+                                        if (datePassed) return;
+                                      }else{
+                                        print('nada new ts');
+                                      }
+
                                       final String taskId = DateTime.now()
                                           .millisecondsSinceEpoch
                                           .toString();
@@ -378,6 +450,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                                           title: title.text,
                                           description: description.text,
                                           project_id: selectedProject,
+                                          user_id: selectedUser,
                                           start_date_time: _rangeStart,
                                           stop_date_time: _rangeEnd,
                                           color: proyectColor);

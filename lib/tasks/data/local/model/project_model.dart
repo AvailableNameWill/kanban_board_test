@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProjectModel{
-  String id; //Id del proyecto
-  String title; //Titulo del proyecto
-  String description;//Descripcion del proyecto
+  String? id; //Id del proyecto
+  String? title; //Titulo del proyecto
+  String? description;//Descripcion del proyecto
   DateTime? start_date_time;//Fecha de inico del proyecto
   DateTime? stop_date_time;//Fecha del fin del proyecto
-  String color;
-  bool completed;//Variable para indicar si la tarea se ha o no se ha completado
+  String? color;
+  bool completed = false;//Variable para indicar si la tarea se ha o no se ha completado
 
   ProjectModel({
     required this.id,
@@ -18,6 +18,15 @@ class ProjectModel{
     required this.color,
     this.completed = false,
   });
+
+  ProjectModel.empty()
+      : id = null,
+        title = null,
+        description = null,
+        start_date_time = null,
+        stop_date_time = null,
+        color = null,
+        completed = false;
 
   //Metodo para crear una lista de tipo ProjectModel en formato Json, este se usa para enviar datos
   Map<String, dynamic> toJson() {

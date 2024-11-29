@@ -22,10 +22,10 @@ class ProjectsBloc extends Bloc<ProjectsEvent, ProjectsState>{
   _addNewProject(AddNewProjectEvent event, Emitter<ProjectsState> emit) async{
     emit(ProjectLoading());
     try{
-      if(event.projectModel.title.trim().isEmpty){
+      if(event.projectModel.title!.trim().isEmpty){
         return emit(AddProjectFailure(error: 'El titulo no puede estar vacio'));
       }
-      if(event.projectModel.description.trim().isEmpty){
+      if(event.projectModel.description!.trim().isEmpty){
         return emit(AddProjectFailure(error: 'La descripcion no puede estar vacia'));
       }
       if(event.projectModel.start_date_time == null){
@@ -59,10 +59,10 @@ class ProjectsBloc extends Bloc<ProjectsEvent, ProjectsState>{
 
   _updateProjects(UpdateProjectEvent event, Emitter<ProjectsState> emit) async{
     try{
-      if(event.projectModel.title.trim().isEmpty){
+      if(event.projectModel.title!.trim().isEmpty){
         return emit(UpdateProjectFailure(error: 'El titulo no puede estar vacio'));
       }
-      if(event.projectModel.description.trim().isEmpty){
+      if(event.projectModel.description!.trim().isEmpty){
         return emit(UpdateProjectFailure(error: 'La descripcion no puede estar vacia'));
       }
       if(event.projectModel.start_date_time == null){
@@ -97,6 +97,6 @@ class ProjectsBloc extends Bloc<ProjectsEvent, ProjectsState>{
 
   _searchProjects(SearchProjectEvent event, Emitter<ProjectsState> emit) async{
     final projects = await projectRepository.searchProject(event.keyWords);
-    return emit(FetchProjectSuccess(projects: projects));
+    return emit(FetchProjectSuccess(projects: projects, isSearching: true));
   }
 }

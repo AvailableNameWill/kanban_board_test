@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:kanban_board_test/components/custom_app_bar.dart';
 import 'package:kanban_board_test/tasks/data/local/model/secure_storage_service.dart';
 import 'package:kanban_board_test/tasks/data/local/model/shared_preferences_service.dart';
+import 'package:kanban_board_test/tasks/presentation/bloc/projects_bloc.dart';
 import 'package:kanban_board_test/tasks/presentation/bloc/tasks_bloc.dart';
 import 'package:kanban_board_test/components/build_text_field.dart';
 import 'package:kanban_board_test/tasks/presentation/bloc/users_bloc.dart';
@@ -27,8 +28,10 @@ class TasksScreen extends StatefulWidget {
 class _TasksScreenState extends State<TasksScreen> {
   TextEditingController searchController = TextEditingController();
   bool _isExpanded = false;
+  bool _updateWindowOpened = false;
   SharedPreferencesService spService = SharedPreferencesService();
   String? userName = '';
+  String? userType = '';
 
   void _toggleButtons(){
     setState(() {
@@ -40,15 +43,17 @@ class _TasksScreenState extends State<TasksScreen> {
   void initState() {
     _loadUserName();
     context.read<TasksBloc>().add(FetchTaskEvent());
-    context.read<UsersBloc>().add(LoadUserNames());
+    //context.read<UsersBloc>().add(LoadUserNames());
     super.initState();
   }
 
   void _loadUserName() async {
     final name = await spService.getUserName();
+    final type = await spService.getUserType();
 
     setState(() {
       userName = name;
+      userType = type;
     });
   }
 
@@ -183,10 +188,22 @@ class _TasksScreenState extends State<TasksScreen> {
                             }
 
                             if (state is AddTaskFailure || state is UpdateTaskFailure) {
+                                context.read<TasksBloc>().add(FetchTaskEvent());
+                            }
+
+                            if (state is UpdateWindowOpended){
+                              print('Update window opened');
+                              //context.read<UsersBloc>().add(LoadUserNames());
                               context.read<TasksBloc>().add(FetchTaskEvent());
                             }
+
+                            if (state is FetchTasksSuccess){
+                              context.read<UsersBloc>().add(LoadUserNames());
+                            }
+
                           }, builder: (context, state) {
                         if (state is TasksLoading) {
+                          print('Tasks loading in tasks screen');
                           return const Center(
                             child: CupertinoActivityIndicator(),
                           );
@@ -205,55 +222,68 @@ class _TasksScreenState extends State<TasksScreen> {
                         }
 
                         if (state is FetchTasksSuccess) {
+                          //context.read<TasksBloc>().add(FetchTaskEvent());
+                          //context.read<UsersBloc>().add(LoadUserNames());
+                          print('Tasks loaded in tasks screen');
                           return state.tasks.isNotEmpty || state.isSearching
                               ? BlocBuilder<UsersBloc, UsersState>(
                             builder: (context, userState){
                               Map<String, String> userNames = {};
 
-                              if(userState is UsersLoaded){
-                                userNames = userState.userNames;
-                                print(userNames);
+                              if (userState is UsersLoading){
+                                return const Center(child: CupertinoActivityIndicator());
                               }
-                              return Column(
-                                children: [
-                                  BuildTextField(
-                                      hint: "Search recent task",
-                                      controller: searchController,
-                                      inputType: TextInputType.text,
-                                      prefixIcon: const Icon(
-                                        Icons.search,
-                                        color: kGrey2,
-                                      ),
-                                      fillColor: kWhiteColor,
-                                      onChange: (value) {
-                                        context.read<TasksBloc>().add(
-                                            SearchTaskEvent(keywords: value));
-                                      }),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  Expanded(
-                                      child: ListView.separated(
-                                        shrinkWrap: true,
-                                        itemCount: state.tasks.length,
-                                        itemBuilder: (context, index) {
-                                          final task = state.tasks[index];
-                                          print('t user_id: ' + task.project_id!);
-                                          final userName = userNames[task.user_id] ?? 'Sin usuario asignado';
-                                          return TaskItemView(
-                                            taskModel: task,
-                                            userName: userName,
-                                          );
-                                        },
-                                        separatorBuilder:
-                                            (BuildContext context, int index) {
-                                          return const Divider(
-                                            color: kGrey3,
-                                          );
-                                        },
-                                      ))
-                                ],
-                              );
+
+                              if(userState is UsersLoaded){
+                                //context.read<TasksBloc>().add(FetchTaskEvent());
+                                userNames = userState.userNames;
+                                return Column(
+                                  children: [
+                                    BuildTextField(
+                                        hint: "Search recent task",
+                                        controller: searchController,
+                                        inputType: TextInputType.text,
+                                        prefixIcon: const Icon(
+                                          Icons.search,
+                                          color: kGrey2,
+                                        ),
+                                        fillColor: kWhiteColor,
+                                        onChange: (value) {
+                                          context.read<TasksBloc>().add(
+                                              SearchTaskEvent(keywords: value));
+                                        }),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    Expanded(
+                                        child: ListView.separated(
+                                          shrinkWrap: true,
+                                          itemCount: state.tasks.length,
+                                          itemBuilder: (context, index) {
+                                            final task = state.tasks[index];
+                                            print('Creando listview');
+                                            print('T user_id: ' + task.user_id!);
+                                            print('t project_id: ' + task.project_id!);
+                                            final userName = userNames[task.user_id] ?? 'Sin usuario asignado';
+                                            print('Username: ' + userName + 'for: ' + task.title);
+                                            return TaskItemView(
+                                              taskModel: task,
+                                              userName: userName,
+                                              userType: userType != null ? userType! : '',
+                                            );
+                                          },
+                                          separatorBuilder:
+                                              (BuildContext context, int index) {
+                                            return const Divider(
+                                              color: kGrey3,
+                                            );
+                                          },
+                                        ))
+                                  ],
+                                );
+                              }
+
+                              return const Center(child: CircularProgressIndicator());
                             },
                           )
                               : Center(
@@ -287,9 +317,11 @@ class _TasksScreenState extends State<TasksScreen> {
                             ),
                           );
                         }
-                        return Container();
+                        return Container( child: Text('No sucede nada'), );
                       }))),
-              floatingActionButton: Stack(
+              floatingActionButton:
+                  userType == 'Administrador' ?
+              Stack(
                 alignment: Alignment.bottomRight,
                 children: [
                   if(_isExpanded)
@@ -314,7 +346,9 @@ class _TasksScreenState extends State<TasksScreen> {
                               heroTag: 'add_task',
                               backgroundColor: Colors.white,
                               onPressed: (){
-                                Navigator.pushNamed(context, Pages.createNewTask);
+                                Navigator.pushNamed(context, Pages.createNewTask).then((_){
+                                  context.read<UsersBloc>().add(LoadUserNames());
+                                });
                               },
                               child: const Icon(
                                 Icons.add_circle,
@@ -335,7 +369,9 @@ class _TasksScreenState extends State<TasksScreen> {
                               heroTag: 'add_pro',
                               backgroundColor: Colors.white,
                               onPressed: (){
-                                Navigator.pushNamed(context, Pages.createNewProject);
+                                Navigator.pushNamed(context, Pages.createNewProject).then((_){
+                                  context.read<UsersBloc>().add(LoadUserNames());
+                                });
                               },
                               child: const Icon(
                                 Icons.add_circle,
@@ -356,7 +392,9 @@ class _TasksScreenState extends State<TasksScreen> {
                               heroTag: 'add_user',
                               backgroundColor: Colors.white,
                               onPressed: (){
-                                Navigator.pushNamed(context, Pages.createNewUser);
+                                Navigator.pushNamed(context, Pages.createNewUser).then((_){
+                                  context.read<UsersBloc>().add(LoadUserNames());
+                                });
                               },
                               child: const Icon(
                                 Icons.add_circle,
@@ -379,7 +417,16 @@ class _TasksScreenState extends State<TasksScreen> {
                     ],
                   ),
                 ],
-              ),
+              )
+              :
+              null
             )));
   }
 }
+
+/*
+*
+Si el tiempo de la tarea o el proyecto se paso, bloquearlos o no mostrarlos en la lista o bloquear el checkbox
+* y mostrar un mensaje que diga que la fecha ya paso o ya expiro
+*
+* */

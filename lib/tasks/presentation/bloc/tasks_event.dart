@@ -34,3 +34,5 @@ class SearchTaskEvent extends TasksEvent{
 
   SearchTaskEvent({required this.keywords});
 }
+
+class UpdateWindowOpenedEvent extends TasksEvent{}

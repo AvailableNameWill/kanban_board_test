@@ -15,6 +15,7 @@ import '../../../routes/pages.dart';
 import '../../../utils/font_sizes.dart';
 import '../../data/local/model/shared_preferences_service.dart';
 import '../bloc/projects_bloc.dart';
+import '../bloc/users_bloc.dart';
 import '../widget/project_item_view.dart';
 
 class ProjectsScreen extends StatefulWidget {
@@ -29,6 +30,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   bool _isExpanded = false;
   SharedPreferencesService spService = SharedPreferencesService();
   String? userName = '';
+  String? userType = '';
 
   void _toggleButtons(){
     setState(() {
@@ -45,9 +47,11 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
 
   void _loadUserName() async {
     final name = await spService.getUserName();
+    final type = await spService.getUserType();
 
     setState(() {
       userName = name;
+      userType = type;
     });
   }
 
@@ -229,7 +233,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                                     itemCount: state.projects.length,
                                     itemBuilder: (context, index) {
                                       return ProjectItemView(
-                                          projectModel: state.projects[index]);
+                                          projectModel: state.projects[index],
+                                          userType: userType != null ? userType! : '',
+                                      );
                                     },
                                     separatorBuilder:
                                         (BuildContext context, int index) {
@@ -273,7 +279,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                         }
                         return Container();
                       }))),
-              floatingActionButton: Stack(
+              floatingActionButton:
+                  userType == 'Administrador' ?
+              Stack(
                 alignment: Alignment.bottomRight,
                 children: [
                   if(_isExpanded)
@@ -298,7 +306,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                               heroTag: 'add_task_p',
                               backgroundColor: Colors.white,
                               onPressed: (){
-                                Navigator.pushNamed(context, Pages.createNewTask);
+                                Navigator.pushNamed(context, Pages.createNewTask).then((_){
+                                  context.read<UsersBloc>().add(LoadUserNames());
+                                });
                               },
                               child: const Icon(
                                 Icons.add_circle,
@@ -319,7 +329,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                               heroTag: 'add_pro_p',
                               backgroundColor: Colors.white,
                               onPressed: (){
-                                Navigator.pushNamed(context, Pages.createNewProject);
+                                Navigator.pushNamed(context, Pages.createNewProject).then((_){
+                                  context.read<UsersBloc>().add(LoadUserNames());
+                                });
                               },
                               child: const Icon(
                                 Icons.add_circle,
@@ -340,7 +352,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                               heroTag: 'add_user_p',
                               backgroundColor: Colors.white,
                               onPressed: (){
-                                Navigator.pushNamed(context, Pages.createNewUser);
+                                Navigator.pushNamed(context, Pages.createNewUser).then((_){
+                                  context.read<UsersBloc>().add(LoadUserNames());
+                                });
                               },
                               child: const Icon(
                                 Icons.add_circle,
@@ -363,7 +377,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                     ],
                   ),
                 ],
-              ),
+              )
+              :
+              null
             )));
   }
 }

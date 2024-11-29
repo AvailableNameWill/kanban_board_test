@@ -117,8 +117,8 @@ class ProjectsDataProvider{
     final List<ProjectModel> projects = await getProjects();
     final searchText = keywords.toLowerCase();
     return projects.where((project){
-      final titleMatches = project.title.toLowerCase().contains(searchText);
-      final descriptionMatches = project.description.toLowerCase().contains(searchText);
+      final titleMatches = project.title!.toLowerCase().contains(searchText);
+      final descriptionMatches = project.description!.toLowerCase().contains(searchText);
       return titleMatches || descriptionMatches;
     }).toList();
   }

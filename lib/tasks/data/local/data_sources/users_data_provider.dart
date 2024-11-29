@@ -28,6 +28,7 @@ class UserDataProvider{
       print(users.length);
       return users;
     }catch(exception){
+      print('user data provider error: ' + exception.toString());
       throw Exception(handleException(exception));
     }
   }

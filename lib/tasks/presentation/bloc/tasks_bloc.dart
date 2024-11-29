@@ -21,6 +21,7 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
     on<DeleteTaskEvent>(_deleteTask);
     on<SortTaskEvent>(_sortTasks);
     on<SearchTaskEvent>(_searchTasks);
+    on<UpdateWindowOpenedEvent>(_onUpdateWindowOpened);
   }
 
   //Este metodo maneja la creacion de las tareas, tiene como parametros un evento y un estado
@@ -46,6 +47,15 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
       final tasks = await taskRepository.getTasks();//Se crea una lista de tareas actualizada con la ultima tarea agregada
       return emit(FetchTasksSuccess(tasks: tasks));//Se devuelve un estado de exito junto con la nueva lista
     } catch (exception) {//Captura de excepcion
+      emit(AddTaskFailure(error: exception.toString()));
+    }
+  }
+
+  _onUpdateWindowOpened(UpdateWindowOpenedEvent event, Emitter<TasksState> emit) async {
+    try{
+      print('Update window emit');
+      emit(UpdateWindowOpended());
+    }catch(exception){
       emit(AddTaskFailure(error: exception.toString()));
     }
   }

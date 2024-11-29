@@ -12,7 +12,8 @@ import 'package:kanban_board_test/utils/util.dart';
 
 class ProjectItemView extends StatefulWidget {
   final ProjectModel projectModel;
-  const ProjectItemView({super.key, required this.projectModel});
+  final String userType;
+  const ProjectItemView({super.key, required this.projectModel, required this.userType});
 
   @override
   State<ProjectItemView> createState() => _ProjectItemViewState();
@@ -24,7 +25,7 @@ class _ProjectItemViewState extends State<ProjectItemView> {
 
   @override
   void initState() {
-    color = Color(int.parse(widget.projectModel.color, radix: 16));
+    color = Color(int.parse(widget.projectModel.color ?? '#FFFFFF', radix: 16));
     super.initState();
   }
 
@@ -71,7 +72,7 @@ class _ProjectItemViewState extends State<ProjectItemView> {
                       children: [
                         Expanded(
                           child: buildText(
-                          widget.projectModel.title,
+                          widget.projectModel.title ?? 'Titulo',
                           kBlackColor,
                           textMedium,
                           FontWeight.w500,
@@ -113,6 +114,7 @@ class _ProjectItemViewState extends State<ProjectItemView> {
                                   ],
                                 ),
                               ),
+                              if (widget.userType == 'Administrador')
                               PopupMenuItem<int>(
                                   value: 1, 
                                   child: Row(
@@ -138,7 +140,7 @@ class _ProjectItemViewState extends State<ProjectItemView> {
                       ],
                     ),
                     const SizedBox(height: 5),
-                    buildText(widget.projectModel.description,
+                    buildText(widget.projectModel.description ?? 'Descripcion',
                         kGrey1,
                         textSmall,
                         FontWeight.normal,

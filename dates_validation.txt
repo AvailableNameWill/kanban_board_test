@@ -97,3 +97,74 @@ void onProjectAssigned(DateTime? projectEnd) {
     }
   });
 }
+
+
+DateTime? selectedStartDate = project.startDate; // Fecha de inicio del proyecto existente
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text("Modificar Proyecto"),
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Fecha de inicio del proyecto:",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: isStartDatePassed(selectedStartDate!)
+                ? null // Si la fecha ya pasó, no se puede modificar
+                : () async {
+                    // Selector de fecha
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: selectedStartDate!,
+                      firstDate: DateTime.now(), // No se permite una fecha pasada
+                      lastDate: DateTime(2100),
+                    );
+
+                    if (pickedDate != null) {
+                      setState(() {
+                        selectedStartDate = pickedDate;
+                      });
+                    }
+                  },
+            child: AbsorbPointer(
+              absorbing: isStartDatePassed(selectedStartDate!),
+              child: TextFormField(
+                readOnly: true,
+                decoration: InputDecoration(
+                  hintText: selectedStartDate != null
+                      ? "${selectedStartDate!.day}/${selectedStartDate!.month}/${selectedStartDate!.year}"
+                      : "Selecciona una fecha",
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ),
+          if (isStartDatePassed(selectedStartDate!))
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                "No se puede modificar porque la fecha ya pasó.",
+                style: TextStyle(color: Colors.red[400]),
+              ),
+            ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              // Guardar cambios
+            },
+            child: const Text("Guardar"),
+          ),
+        ],
+      ),
+    ),
+  );
+}

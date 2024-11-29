@@ -33,3 +33,5 @@ final class UpdateTaskFailure extends TasksState {
 }
 
 final class UpdateTaskSuccess extends TasksState {}
+
+final class UpdateWindowOpended extends TasksState{}
