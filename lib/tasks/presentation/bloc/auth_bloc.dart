@@ -4,6 +4,7 @@ import 'package:kanban_board_test/tasks/data/local/model/secure_storage_service.
 import 'package:kanban_board_test/tasks/data/local/model/shared_preferences_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:kanban_board_test/utils/exception_handler.dart';
+import 'package:kanban_board_test/utils/util.dart';
 
 import '../../data/respository/auth_repository.dart';
 
@@ -24,6 +25,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<CheckSessionStarted>(_checkSession);
     on<ResetPasswordEvent>(_resetPassword);
     on<ReauthenticateAdminEvent>(_mapReauthenticateAdminEventToState);
+    on<UpdatePasswordEvent>(_updatePassword);
+    on<UpdateEmailEvent>(_updateEmail);
+    on<DeleteAuthUserEvent>(_deleteAuthUser);
   }
 
   Future<void> _login(LoginEvent event, Emitter<AuthState> emit) async{
@@ -103,5 +107,67 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       print('Error de reautenticacion en BLoC');
       emit(AuthFailure(error: 'Error al reautenticar al administrador. Error: $exception'));
     }
+  }
+
+  Future<void> _updatePassword(UpdatePasswordEvent event, Emitter<AuthState> emit) async{
+    try{
+      emit(AuthLoading());
+      final validateErrors = _validatePassword(currentPassword: event.currentPassword, newPassword: event.newPassword, repeatNewPassword: event.repeatNewPassword);
+      if (validateErrors != null){
+        emit(AuthFailure(error: validateErrors));
+        return;
+      }
+      await authRepository.updatePassword(event.newPassword, event.currentPassword);
+      emit(PasswordUpdateSuccess());
+    }catch(exception){
+      emit(AuthFailure(error: exception.toString()));
+    }
+  }
+  
+  Future<void> _updateEmail(UpdateEmailEvent event, Emitter<AuthState> emit) async{
+    try{
+      if(!isValidEmail(event.newEmail)){
+        emit(UpdateEmailFailure(error: 'Correo electronico invalido!'));
+        return;
+      }
+      emit(UpdateEmailLoading());
+      await authRepository.updateEmail(event.newEmail);
+      emit(UpdateEmailSuccess());
+    }catch(exception){
+      emit(UpdateEmailFailure(error: exception.toString()));
+    }
+  }
+
+  Future<void> _deleteAuthUser(DeleteAuthUserEvent event, Emitter<AuthState> emit) async{
+    try{
+      if (!isValidEmail(event.email) || event.email.isEmpty || event.email == null){
+        emit(DeleteAuthUserFailure(error: 'Correo electronico invalido!'));
+        return;
+      }
+      if (event.password.isEmpty || event.password == null || event.password.length < 8){
+        emit(DeleteAuthUserFailure(error: 'Contraseña invalida!'));
+        return;
+      }
+      await authRepository.deleteAuthUser(event.email, event.password);
+      emit(DeleteAuthUserSuccess());
+    }catch(error){
+      emit(DeleteAuthUserFailure(error: error.toString()));
+    }
+  }
+
+  String? _validatePassword({ required String currentPassword, required String newPassword, required String repeatNewPassword }){
+    if (currentPassword.isEmpty || newPassword.isEmpty || repeatNewPassword.isEmpty){
+      return 'Todos los campos son obligatorios!';
+    }
+    if (newPassword.length < 8){
+      return 'La nueva contraseña debe de tener una longitud minima de 8 caracteres!';
+    }
+    if (newPassword != repeatNewPassword){
+      return 'Las contraseñas no coinciden';
+    }
+    if (newPassword == currentPassword){
+      return 'La nueva contraseña no puede ser igual a la contraseña actual';
+    }
+    return null;
   }
 }

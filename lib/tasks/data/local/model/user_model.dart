@@ -6,17 +6,20 @@ class UserModel{
   String id;
   String name;
   String userType;
+  String status;
 
   UserModel({
     required this.id,
     required this.name,
-    required this.userType
+    required this.userType,
+    required this.status
   });
 
   Map<String, dynamic> toJson(){
     return {
       'name' : name,
-      'userType' : userType
+      'userType' : userType,
+      'status' : status
     };
   }
 
@@ -24,7 +27,8 @@ class UserModel{
     return UserModel(
         id: json['id'] as String,
         name: json['name'] as String,
-        userType: json['userType'] as String
+        userType: json['userType'] as String,
+        status: json['status'] as String
     );
   }
 
@@ -34,6 +38,7 @@ class UserModel{
         id: doc.id,
         name: data['name'] ?? '',
         userType: data['userType'] ?? '',
+        status: data['status'] ?? ''
     );
   }
 }

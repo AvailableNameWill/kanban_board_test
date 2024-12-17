@@ -89,6 +89,30 @@ class _LoginState extends State<Login> {
                             obscureText: true,
                         ),
                         const SizedBox(height: 10),
+                        SizedBox(
+                          height: 20,
+                          child: TextButton(
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size(0, 0),
+                                alignment: Alignment.centerLeft,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap
+                              ),
+                              onPressed: (){
+                                Navigator.of(context).pushNamed(Pages.resetPassword);
+                              },
+                              child: Text(
+                                'Has olvidado tu contraseña?',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                          )
+                        ),
+                        const SizedBox(height: 10),
                         Row(
                           children: [
                             Expanded(

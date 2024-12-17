@@ -14,6 +14,10 @@ class AuthRepository{
     return authDataProvider.signOut();
   }
 
+  Future<void> deleteAuthUser(String email, String password){
+    return authDataProvider.deleteAuthUser(email, password);
+}
+
   Future<bool> checkSession (){
     return authDataProvider.checkSession();
   }
@@ -24,5 +28,13 @@ class AuthRepository{
 
   Future<UserCredential> reauthenticateAdmin(String password){
     return authDataProvider.reauthenticateAdmin(password);
+  }
+
+  Future<void> updatePassword(String newPassword, String currentPassword){
+    return authDataProvider.updatePassword(newPassword, currentPassword);
+  }
+
+  Future<void> updateEmail(String newEmail) {
+    return authDataProvider.updateEmail(newEmail);
   }
 }

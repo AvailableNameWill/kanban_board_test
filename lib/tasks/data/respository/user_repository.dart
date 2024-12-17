@@ -21,8 +21,12 @@ class UserRepository{
     return await userDataProvider.addUserToFireStore(uid, userModel);
   }
 
-  Future<List<UserModel>> updateUser(UserModel userModel) async{
-    return await userDataProvider.updateUser(userModel);
+  Future<void> updateUserInfo(UserModel userModel) async{
+    return await userDataProvider.updateUserInFirestore(userModel);
+  }
+
+  Future<void> updateUserLocalInfo(String name, String userType) async {
+    return await userDataProvider.updateUserLocalInfo(name, userType);
   }
 
   Future<List<UserModel>> deleteUser(UserModel userModel) async{

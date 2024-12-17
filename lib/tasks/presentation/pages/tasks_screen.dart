@@ -28,6 +28,7 @@ class TasksScreen extends StatefulWidget {
 class _TasksScreenState extends State<TasksScreen> {
   TextEditingController searchController = TextEditingController();
   bool _isExpanded = false;
+  bool _hasLoadedUserState = false;
   bool _updateWindowOpened = false;
   SharedPreferencesService spService = SharedPreferencesService();
   String? userName = '';
@@ -233,10 +234,14 @@ class _TasksScreenState extends State<TasksScreen> {
                               if (userState is UsersLoading){
                                 return const Center(child: CupertinoActivityIndicator());
                               }
+                              if (userState is UpdateUserLocalInfoSuccess){
+                                _loadUserName();
+                                context.read<UsersBloc>().add(LoadUserNames());
+                              }
 
-                              if(userState is UsersLoaded){
+                              if(userState is UsersLoaded && userState.userNames != null){
                                 //context.read<TasksBloc>().add(FetchTaskEvent());
-                                userNames = userState.userNames;
+                                userNames = userState.userNames!;
                                 return Column(
                                   children: [
                                     BuildTextField(

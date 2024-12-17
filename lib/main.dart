@@ -64,7 +64,9 @@ class MyApp extends StatelessWidget {
             create: (context) => UserRepository(
                 userDataProvider: UserDataProvider(
                     FirebaseFirestore.instance,
-                    FirebaseAuth.instance
+                    FirebaseAuth.instance,
+                    SecureStorageService(),
+                    SharedPreferencesService(),
                 )
             ),
         ),

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kanban_board_test/tasks/data/respository/user_repository.dart';
@@ -13,12 +14,13 @@ class UsersBloc extends Bloc<UsersEvent, UsersState>{
   UsersBloc(this.userRepository) : super(FetchUserSuccess(users: const [])){
     on<AddNewUserEvent>(_addNewUser);
     on<FetchUserEvent>(_fetchUsers);
-    on<UpdateUserEvent>(_updateUser);
+    on<UpdateUserInfoEvent>(_updateUser);
     on<DeleteUserEvent>(_deleteUser);
     //on<SortUserEvent>(_sortUsers);
     on<SearchUserEvent>(_searchUsers);
     on<CompleteUserCreationEvent>(_completeUserCreation);
     on<LoadUserNames>(_onLoadUserNames);
+    on<UpdateUserLocalInfoEvent>(_updateUserLocalInfo);
   }
   
   _addNewUser(AddNewUserEvent event, Emitter<UsersState> emit) async{
@@ -53,11 +55,21 @@ class UsersBloc extends Bloc<UsersEvent, UsersState>{
 
   void _fetchUsers(FetchUserEvent event, Emitter<UsersState> emit) async {
     emit(UsersLoading());
+    print('Getting users');
     try{
       final users = await userRepository.getUsers();
-      return emit(FetchUserSuccess(users: users));
+      if (state is UsersLoaded && (state as UsersLoaded).userNames.isNotEmpty){
+        final currentNames = (state as UsersLoaded).userNames.isNotEmpty ? (state as UsersLoaded).userNames : await userRepository.getUserNamesMap();
+        return emit(UsersLoaded(users: users, userNames: currentNames));
+      }else{
+        final userNames = await userRepository.getUserNamesMap();
+        return emit(UsersLoaded(userNames: userNames, users: users));
+      }
+      /*print('usersBloc' + users.length.toString());
+      return emit(UsersLoaded(users: users, userNames: {}));*/
     }catch(exception){
       emit(LoadUserFailure(error: exception.toString()));
+      print('Load users Failure in users bloc' + exception.toString());
     }
   }
 
@@ -65,26 +77,51 @@ class UsersBloc extends Bloc<UsersEvent, UsersState>{
     emit(UsersLoading());
     try{
       final userNames = await userRepository.getUserNamesMap();
-      emit(UsersLoaded(userNames: userNames));
+      if (state is UsersLoaded && (state as UsersLoaded).users != null){
+        final users = state is UsersLoaded ?(state as UsersLoaded).users : await userRepository.getUsers();
+        return emit(UsersLoaded(userNames: userNames, users: users));
+      }else{
+        final users = await userRepository.getUsers();
+        return emit(UsersLoaded(userNames: userNames, users: users));
+      }
+      /*final currentUsers = state is UsersLoaded ? (state as UsersLoaded).users : null;
+      emit(UsersLoaded(users: currentUsers, userNames: userNames));*/
     }catch(error){
       emit(LoadUserFailure(error: error.toString()));
     }
   }
   
-  _updateUser(UpdateUserEvent event, Emitter<UsersState> emit) async{
+  _updateUser(UpdateUserInfoEvent event, Emitter<UsersState> emit) async{
     try{
       if(event.userModel.name.trim().isEmpty){
         emit(UpdateUserFailure(error: 'El nombre no puede estar vacio'));
+        return;
       }
       if(event.userModel.userType.trim().isEmpty || event.userModel.userType == null){
         emit(UpdateUserFailure(error: 'Debe seleccionar el tipo de usuario'));
+        return;
       }
-      emit(UsersLoading());
-      final users = await userRepository.updateUser(event.userModel);
+      final users = await userRepository.updateUserInfo(event.userModel);
+      //await userRepository.updateUserLocalInfo(event.userModel.name, event.userModel.userType);
       emit(UpdateUserSuccess());
-      return emit(FetchUserSuccess(users: users));
+      emit(UsersInitial());
     }catch(exception){
       emit(UpdateUserFailure(error: exception.toString()));
+    }
+  }
+  
+  _updateUserLocalInfo(UpdateUserLocalInfoEvent event, Emitter<UsersState> emit) async {
+    try{
+      if(event.name.isEmpty || event.name == null){
+        emit(UpdateUserLocalInfoFailure(error: 'No hay nombre de usuario!'));
+      }
+      if (event.userType.isEmpty || event.userType == null){
+        emit(UpdateUserLocalInfoFailure(error: 'No hay tipo de usuario!'));
+      }
+      await userRepository.updateUserLocalInfo(event.name, event.userType);
+      emit(UpdateUserLocalInfoSuccess());
+    }catch(exception){
+      emit(UpdateUserLocalInfoFailure(error: exception.toString()));
     }
   }
   
@@ -92,9 +129,10 @@ class UsersBloc extends Bloc<UsersEvent, UsersState>{
     emit(UsersLoading());
     try{
       final users = await userRepository.deleteUser(event.userModel);
-      return emit(FetchUserSuccess(users: users));
+      final userNames = await userRepository.getUserNamesMap();
+      return emit(DeleteUserSuccess());
     }catch(exception){
-      emit(LoadUserFailure(error: exception.toString()));
+      emit(DeleteUserFailure(error: exception.toString()));
     }
   }
 
@@ -105,6 +143,13 @@ class UsersBloc extends Bloc<UsersEvent, UsersState>{
 
   _searchUsers(SearchUserEvent event, Emitter<UsersState> emit) async{
     final users = await userRepository.searchUser(event.keywords);
+    if (state is UsersLoaded && (state as UsersLoaded).userNames.isNotEmpty){
+      final currentNames = (state as UsersLoaded).userNames.isNotEmpty ? (state as UsersLoaded).userNames : await userRepository.getUserNamesMap();
+      return emit(UsersLoaded(users: users, userNames: currentNames));
+    }else{
+      final userNames = await userRepository.getUserNamesMap();
+      return emit(UsersLoaded(userNames: userNames, users: users));
+    }
     return emit(FetchUserSuccess(users: users, isSearching: true));
   }
 }

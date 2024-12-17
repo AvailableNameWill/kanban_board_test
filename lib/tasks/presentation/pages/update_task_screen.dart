@@ -38,8 +38,10 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
   SharedPreferencesService spService = SharedPreferencesService();
   SecureStorageService ssService = SecureStorageService();
   String? userName = '';
+  String? userType = '';
+  String? sugerencias = '';
   String userId = '';
-
+  bool canEdit = false;
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -60,6 +62,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
     setState(() {
       userName = name;
       userId = id;
+      userType = type;
     });
   }
 
@@ -131,6 +134,11 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
     _projectStart = null;
     context.read<UsersBloc>().add(FetchUserEvent());
     _loadUserName();
+    if (widget.userType == 'Administrador'){
+      setState(() {
+        canEdit = true;
+      });
+    }
     //context.read<TasksBloc>().add(UpdateWindowOpenedEvent());
     super.initState();
   }
@@ -283,7 +291,9 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                                 controller: title,
                                 inputType: TextInputType.text,
                                 fillColor: kWhiteColor,
-                                onChange: (value) {}),
+                                onChange: (value) {},
+                                enabled: canEdit,
+                            ),
                             const SizedBox(
                               height: 5,
                             ),
@@ -391,13 +401,13 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                             ),
                             BlocBuilder<UsersBloc, UsersState>(
                               builder: (context, userState){
-                                if(userState is FetchUserSuccess){
+                                if(userState is UsersLoaded){
                                   print('users fetched');
                                   try{
                                     final users = userState.users;
                                     print('username: ' + userName!);
                                     final filteredUsers = (widget.userType == 'Empleado' && (selectedUser == null || selectedUser!.isEmpty || selectedUser == userId))
-                                      ? users.where((user) => user.name == userName).toList()
+                                      ? users?.where((user) => user.name == userName).toList()
                                       : users;
 
                                     final dropDownItems = [
@@ -408,7 +418,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                                           style: TextStyle(fontSize: 16),
                                         ),
                                       ),
-                                      ...filteredUsers.map((user){
+                                      ...?filteredUsers?.map((user){
                                         return DropdownMenuItem<String>(
                                           value: user.id,
                                           child: Text(
@@ -431,14 +441,14 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                                         )
                                       );
                                     }*/
-                                    print("Usuarios cargados: ${users.map((user) => user.name).toList()}");
+                                    print("Usuarios cargados: ${users?.map((user) => user.name).toList()}");
                                     return DropdownButtonHideUnderline(
                                       child: DropdownButton2<String>(
                                         isExpanded: true,
                                         hint: Text(selectedUser ?? "Seleccione un usuario",
                                           style: const TextStyle(fontSize: 16, color: kBlackColor),),
                                         items: dropDownItems,
-                                        value: filteredUsers.any((user) => user.id == selectedUser) ? selectedUser : null,
+                                        value: filteredUsers!.any((user) => user.id == selectedUser) ? selectedUser : null,
                                         onChanged: (value){
                                           setState(() {
                                             selectedUser = value;
@@ -508,8 +518,57 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                                 controller: description,
                                 inputType: TextInputType.multiline,
                                 fillColor: kWhiteColor,
-                                onChange: (value) {}),
+                                onChange: (value) {},
+                                enabled: canEdit,
+                            ),
+                            if (userType == 'Empleado' && (selectedUser != null && selectedUser != ''))
                             const SizedBox(height: 5),
+                            if (userType == 'Empleado' && (selectedUser != null && selectedUser != ''))
+                            /*buildText(
+                                'Sugerencias',
+                                kBlackColor,
+                                textMedium,
+                                FontWeight.bold,
+                                TextAlign.start,
+                                TextOverflow.clip),
+                            const SizedBox( height: 5 ),*/
+                            SizedBox(
+                              width: size.width,
+                              child: ElevatedButton(
+                                  style: ButtonStyle(
+                                    foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.white),
+                                    backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        kPrimaryColor),
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            10), // Adjust the radius as needed
+                                      ),
+                                    ),
+                                  ),
+                                  onPressed: () async {
+                                    final resultado = await _showSuggestionDialog(context);
+                                    if (resultado != null && resultado.isNotEmpty){
+                                      sugerencias = resultado;
+                                      print('Sugerencias guardadas: $sugerencias');
+                                    }
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(15),
+                                    child: buildText(
+                                        'Sugerencias',
+                                        kWhiteColor,
+                                        textMedium,
+                                        FontWeight.w600,
+                                        TextAlign.center,
+                                        TextOverflow.clip),
+                                  )),
+                            ),
+                            const SizedBox( height: 5 ),
                             SizedBox(
                               width: size.width,
                               child: ElevatedButton(
@@ -543,6 +602,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                                         user_id: selectedUser,
                                         start_date_time: _rangeStart,
                                         stop_date_time: _rangeEnd,
+                                        sugerencias: sugerencias,
                                         color: proyectColor,
                                     );
                                     context.read<TasksBloc>().add(
@@ -562,6 +622,38 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                           ],
                         );
                       }))))),
+    );
+  }
+
+  Future<String?> _showSuggestionDialog(BuildContext context) async{
+    final TextEditingController suggestionController = TextEditingController();
+    return showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            title: const Text('Ingrese sus sugerencias'),
+            content: TextField(
+              controller: suggestionController,
+              decoration: const InputDecoration(
+                hintText: 'Escribe aqui tus sugerencias'
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                  onPressed: (){
+                    Navigator.of(context).pop(null);
+                  },
+                  child: const Text('Cancelar'),
+              ),
+              TextButton(
+                  onPressed: (){
+                    Navigator.of(context).pop(suggestionController.text);
+                  },
+                  child: const Text('Aceptar'),
+              ),
+            ],
+          );
+        }
     );
   }
 }

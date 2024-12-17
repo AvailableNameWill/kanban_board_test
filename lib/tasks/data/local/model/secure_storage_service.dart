@@ -33,4 +33,8 @@ class SecureStorageService{
   Future<String> getUid() async{
     return await _storage.read(key: 'uid') ?? '';
   }
+
+  Future<void> updateEmail (String email) async {
+    await _storage.write(key: 'email', value: email);
+  }
 }

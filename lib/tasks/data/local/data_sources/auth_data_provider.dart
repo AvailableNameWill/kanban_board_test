@@ -31,6 +31,45 @@ class AuthDataProvider{
     }
   }
 
+  Future<void> updatePassword(String newPassword, String currentPassword) async{
+    try{
+      final currentUser = auth.currentUser;
+      if (currentUser != null){
+        final credential = EmailAuthProvider.credential(
+          email: currentUser.email!,
+          password: currentPassword,
+        );
+        await currentUser.reauthenticateWithCredential(credential);
+
+        await currentUser.updatePassword(newPassword);
+        print('Actualizacion de contraseña exitosa');
+      }else{
+        throw handleException('Usuario no autenticado');
+      }
+    }catch(error){
+      print('Error en metodo de actualizar contraseña: ' + error.toString());
+      throw handleException(error.toString());
+    }
+  }
+
+  /*
+  * Titulo: Email enviado
+  * Mensaje: Se ha enviado un mensaje de confirmacion a su nuevo correo electronico. Revise su bandeja de entrada o SPAM
+  * y valide el nuevo email. Si no se valida no podra iniciar sesion con el nuevo correo.
+  * */
+  Future<void> updateEmail(String newEmail) async{
+    try {
+      final currentUser = auth.currentUser;
+      currentUser?.verifyBeforeUpdateEmail(newEmail);
+      auth.signOut();
+      print('email de actualizacion enviado!!!');
+      //Cerrar la ventana y redirigir al login
+    }catch(error){
+      print('Error en el metodo de actualizar email' + error.toString());
+      throw handleException(error.toString());
+    }
+  }
+
   Future<void> signOut() async{
     try{
       await auth.signOut();
@@ -72,6 +111,8 @@ class AuthDataProvider{
     }
   }
 
+
+
   Future<UserCredential> reauthenticateAdmin(String password) async{
     try{
       final String email = await service.getEmail();
@@ -92,6 +133,17 @@ class AuthDataProvider{
       return userCredential;
     }catch(exception){
       print('Error de reautenticacion');
+      throw Exception(handleException(exception.toString()));
+    }
+  }
+
+  Future<void> deleteAuthUser(String email, String password) async{
+    try{
+      auth.signOut();
+      final userCredential = await auth.signInWithEmailAndPassword(email: email, password: password);
+      final currentUser = auth.currentUser;
+      await currentUser!.delete();
+    }catch(exception){
       throw Exception(handleException(exception.toString()));
     }
   }

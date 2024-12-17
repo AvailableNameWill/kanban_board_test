@@ -453,6 +453,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                                           user_id: selectedUser,
                                           start_date_time: _rangeStart,
                                           stop_date_time: _rangeEnd,
+                                          sugerencias: '',
                                           color: proyectColor);
                                       context.read<TasksBloc>().add(
                                           AddNewTaskEvent(

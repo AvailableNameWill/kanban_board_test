@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:kanban_board_test/tasks/presentation/bloc/projects_bloc.dart';
+import 'package:kanban_board_test/tasks/presentation/pages/myuser_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/new_proyect_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/new_user_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/projects_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/tasks_screen.dart';
+import 'package:kanban_board_test/tasks/presentation/pages/users_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,8 +21,8 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _screens = [
     const TasksScreen(),
     const ProjectsScreen(),
-    const NewUserScreen(),
-    const NewProjectScreen()
+    const UsersScreen(),
+    const MyUserScreen()
   ];
 
   void _onTabTapped(int index){

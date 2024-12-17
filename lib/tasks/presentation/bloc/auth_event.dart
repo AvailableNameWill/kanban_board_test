@@ -17,6 +17,12 @@ class LoginEvent extends AuthEvent{
 /* LogoutEvent: Se utiliza cuando el usuario intenta cerrar sesión. */
 class LogoutEvent extends AuthEvent{}
 
+class DeleteAuthUserEvent extends AuthEvent{
+  final String email;
+  final String password;
+  DeleteAuthUserEvent({ required this.email, required this.password });
+}
+
 /* CheckSessionEvent: Comprueba si existe una sesión guardada en SecureStorageService. */
 class CheckSessionStarted extends AuthEvent{}
 
@@ -31,3 +37,27 @@ class ReauthenticateAdminEvent extends AuthEvent{
 
   ReauthenticateAdminEvent({ required this.password });
 }
+
+class ReauthenticateUserEvent extends AuthEvent{
+  final String currentPassword;
+
+  ReauthenticateUserEvent(this.currentPassword);
+}
+
+class UpdatePasswordEvent extends AuthEvent{
+  final String currentPassword;
+  final String newPassword;
+  final String repeatNewPassword;
+
+  UpdatePasswordEvent({
+    required this.currentPassword,
+    required this.newPassword,
+    required this.repeatNewPassword
+  });
+}
+
+class UpdateEmailEvent extends AuthEvent{
+  final String newEmail;
+  UpdateEmailEvent({ required this.newEmail });
+}
+

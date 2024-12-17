@@ -230,7 +230,22 @@ class _TaskItemViewState extends State<TaskItemView> {
               ],
             ),
         ),
-        Text(widget.userName),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(widget.userName), //Colocar la sugerencia aqui
+            const SizedBox(width: 20),
+            if (widget.taskModel.sugerencias!.isNotEmpty || widget.taskModel.sugerencias! != null)
+            buildText(
+                widget.taskModel
+                    .sugerencias!,
+                kGrey1,
+                textSmall,
+                FontWeight.normal,
+                TextAlign.start,
+                TextOverflow.clip),
+          ],
+        ),
       ],
     );
   }

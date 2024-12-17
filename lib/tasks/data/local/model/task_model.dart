@@ -8,6 +8,7 @@ class TaskModel {
   String? user_id; //ID del usuario que esta ligado a la tarea
   DateTime? start_date_time; //Fecha de inicio de la tarea
   DateTime? stop_date_time; //Fecha de fin de la tarea
+  String? sugerencias;
   bool completed;
   String? color;
 
@@ -19,6 +20,7 @@ class TaskModel {
     required this.stop_date_time,
     this.project_id = '',
     this.user_id = '',
+    this.sugerencias = '',
     this.completed = false,
     this.color = "#FFFFFFFF",
   });
@@ -33,6 +35,7 @@ class TaskModel {
       'completed': completed,
       'start_date_time': start_date_time != null ? Timestamp.fromDate(start_date_time!) : null,
       'stop_date_time': stop_date_time != null ? Timestamp.fromDate(stop_date_time!) : null,
+      'sugerencias' : sugerencias,
       'color': color
     };
   }
@@ -52,6 +55,7 @@ class TaskModel {
       stop_date_time: json['stop_date_time'] != null
         ? DateTime.parse(json['stop_date_time'])
         : null,
+      sugerencias: json['sugerencias'] as String,
       color: json['color'] as String
     );
   }
@@ -72,6 +76,7 @@ class TaskModel {
       stop_date_time: data['stop_date_time'] != null
         ? DateTime.parse(data['stop_date_time'])
         : null,
+        sugerencias: data['sugerencias'] as String,
         color: data['color'] as String
     );
   }
@@ -80,6 +85,6 @@ class TaskModel {
   String toString() {
     return 'TaskModel{id: $id, title: $title, description: $description, '
         'project_id: $project_id, user_id: $user_id, startDateTime: $start_date_time, stopDateTime: $stop_date_time, '
-        'completed: $completed, color: $color}';
+        'completed: $completed, sugerencias: $sugerencias, color: $color}';
   }
 }

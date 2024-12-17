@@ -19,10 +19,17 @@ class SortUserEvent extends UsersEvent{
   SortUserEvent({ required this.sortOption });
 }
 
-class UpdateUserEvent extends UsersEvent{
+class UpdateUserInfoEvent extends UsersEvent{
   final UserModel userModel;
 
-  UpdateUserEvent({ required this.userModel });
+  UpdateUserInfoEvent({ required this.userModel});
+}
+
+class UpdateUserLocalInfoEvent extends UsersEvent{
+  final String name;
+  final String userType;
+
+  UpdateUserLocalInfoEvent({ required this.name, required this.userType });
 }
 
 class DeleteUserEvent extends UsersEvent {

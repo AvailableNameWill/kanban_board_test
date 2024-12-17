@@ -268,7 +268,8 @@ class _NewUserScreenState extends State<NewUserScreen> {
                                         var userModel = UserModel(
                                             id: uid,
                                             name: name.text.trim(),
-                                            userType: selectedType!
+                                            userType: selectedType!,
+                                            status: 'enabled'
                                         );
 
                                         context.read<UsersBloc>().add(
@@ -278,18 +279,6 @@ class _NewUserScreenState extends State<NewUserScreen> {
                                               password: password.text.trim()
                                           ),
                                         );
-                                        /*final String taskId = DateTime.now()
-                                            .millisecondsSinceEpoch
-                                            .toString();
-                                        var userModel = UserModel(
-                                            id: taskId,
-                                            name: name.text,
-                                            userType: selectedType!);
-                                        context.read<UsersBloc>().add(
-                                            AddNewUserEvent(
-                                                userModel: userModel,
-                                              email: email.text.trim(),
-                                              password: password.text.trim()),);*/
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(15),
@@ -331,6 +320,18 @@ class _NewUserScreenState extends State<NewUserScreen> {
 ),
   *
   * */
+  /*final String taskId = DateTime.now()
+                                            .millisecondsSinceEpoch
+                                            .toString();
+                                        var userModel = UserModel(
+                                            id: taskId,
+                                            name: name.text,
+                                            userType: selectedType!);
+                                        context.read<UsersBloc>().add(
+                                            AddNewUserEvent(
+                                                userModel: userModel,
+                                              email: email.text.trim(),
+                                              password: password.text.trim()),);*/
 
   Future<void> _showPasswordDialog(BuildContext context, AuthBloc authBloc, String uid, UserModel userModel){
 
