@@ -33,6 +33,10 @@ class UserRepository{
     return await userDataProvider.deleteUser(userModel);
   }
 
+  Future<int> getUsersLength() async{
+    return await userDataProvider.getUsersLength();
+  }
+
   /*Future<List<UserModel>> sortUsers(int sortOption) async{
     return await userDataProvider.sortUsers(sortOption);
   }*/

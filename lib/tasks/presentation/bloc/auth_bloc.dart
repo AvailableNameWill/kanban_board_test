@@ -140,12 +140,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _deleteAuthUser(DeleteAuthUserEvent event, Emitter<AuthState> emit) async{
     try{
+      final int length = await authRepository.getUsersLength();
       if (!isValidEmail(event.email) || event.email.isEmpty || event.email == null){
         emit(DeleteAuthUserFailure(error: 'Correo electronico invalido!'));
         return;
       }
       if (event.password.isEmpty || event.password == null || event.password.length < 8){
         emit(DeleteAuthUserFailure(error: 'Contraseña invalida!'));
+        return;
+      }
+      if (length <= 1){
+        emit(DeleteAuthUserFailure(error: 'Usted es el unico administrador, agregue otro administrador antes de continuar '
+            'con la eliminacion de su cuenta'));
         return;
       }
       await authRepository.deleteAuthUser(event.email, event.password);

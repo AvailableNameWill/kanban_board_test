@@ -128,9 +128,14 @@ class UsersBloc extends Bloc<UsersEvent, UsersState>{
   _deleteUser(DeleteUserEvent event, Emitter<UsersState> emit) async {
     emit(UsersLoading());
     try{
-      final users = await userRepository.deleteUser(event.userModel);
-      final userNames = await userRepository.getUserNamesMap();
-      return emit(DeleteUserSuccess());
+      final int length = await userRepository.getUsersLength();
+      if (length > 1){
+        final users = await userRepository.deleteUser(event.userModel);
+        final userNames = await userRepository.getUserNamesMap();
+        return emit(DeleteUserSuccess());
+      }
+      return emit(DeleteUserFailure(error: 'Usted es el unico administrador, agregue otro administrador antes de continuar '
+          'con la eliminacion de su cuenta'));
     }catch(exception){
       emit(DeleteUserFailure(error: exception.toString()));
     }

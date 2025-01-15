@@ -7,19 +7,22 @@ class UserModel{
   String name;
   String userType;
   String status;
+  String? fcmToken;
 
   UserModel({
     required this.id,
     required this.name,
     required this.userType,
-    required this.status
+    required this.status,
+    this.fcmToken = '',
   });
 
   Map<String, dynamic> toJson(){
     return {
       'name' : name,
       'userType' : userType,
-      'status' : status
+      'status' : status,
+      'fcmToken': fcmToken,
     };
   }
 
@@ -28,7 +31,8 @@ class UserModel{
         id: json['id'] as String,
         name: json['name'] as String,
         userType: json['userType'] as String,
-        status: json['status'] as String
+        status: json['status'] as String,
+        fcmToken: json['fcmToken'] as String,
     );
   }
 
@@ -38,7 +42,9 @@ class UserModel{
         id: doc.id,
         name: data['name'] ?? '',
         userType: data['userType'] ?? '',
-        status: data['status'] ?? ''
+        status: data['status'] ?? '',
+        fcmToken: data['fcmToken'] ?? '',
     );
   }
+
 }

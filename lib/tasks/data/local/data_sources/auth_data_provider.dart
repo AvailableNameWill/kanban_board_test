@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:kanban_board_test/tasks/data/local/model/fcm_service.dart';
 import 'package:kanban_board_test/tasks/data/local/model/secure_storage_service.dart';
 import 'package:kanban_board_test/tasks/data/local/model/shared_preferences_service.dart';
 import 'package:kanban_board_test/utils/exception_handler.dart';
@@ -9,21 +10,24 @@ class AuthDataProvider{
   final FirebaseFirestore firestore;
   final SecureStorageService service;
   final SharedPreferencesService sharedPreferencesService;
+  final FCMService fcmService;
 
-  AuthDataProvider( this.auth, this.firestore, this.service, this.sharedPreferencesService );
+  AuthDataProvider( this.auth, this.firestore, this.service, this.sharedPreferencesService, this.fcmService);
 
   Future<UserCredential> signIn(String email, String password) async {
     try{
       UserCredential userCredential = await auth.signInWithEmailAndPassword(email: email, password: password);
       String uid = userCredential.user?.uid ?? '';
+
       String? token = await userCredential.user?.getIdToken();
+      String? fcmToken = await fcmService.getToken();
 
       if(uid.isNotEmpty){
         Map<String, String> userInfo = await _getUserInfoFromFireStore(uid);
 
-        await service.saveUserSession(uid, token ?? '', email);
-
+        await service.saveUserSession(uid, token ?? '', email, fcmToken ?? '');
         await sharedPreferencesService.saveUserInfo(userInfo['name'] ?? '', userInfo['userType'] ?? '');
+        await fcmService.verifyAndUpdateToken(uid);
       }
       return userCredential;
     }catch(exception){
@@ -86,7 +90,11 @@ class AuthDataProvider{
 
       final currentUser = auth.currentUser;
 
-      return uid != null && token != null && currentUser != null && currentUser.uid == uid;
+      if (uid != null && token != null && currentUser != null && currentUser.uid == uid){
+        await fcmService.verifyAndUpdateToken(uid);
+        return true;
+      }
+      return false;
     }catch(exception){
       throw Exception(handleException(exception));
     }
@@ -145,6 +153,15 @@ class AuthDataProvider{
       await currentUser!.delete();
     }catch(exception){
       throw Exception(handleException(exception.toString()));
+    }
+  }
+
+  Future<int> getUsersLength() async{
+    try{
+      final QuerySnapshot querySnapshot = await firestore.collection('users').where('userType', isEqualTo: 'Administrador').get();
+      return querySnapshot.docs.length;
+    }catch(exception){
+      throw handleException(exception.toString() + 'No se pudo recuperar la informacion!');
     }
   }
 }

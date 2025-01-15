@@ -9,6 +9,7 @@ import '../../../utils/color_palette.dart';
 import '../../../utils/font_sizes.dart';
 import '../../../utils/util.dart';
 import '../../data/local/model/secure_storage_service.dart';
+import '../../data/local/model/shared_preferences_service.dart';
 import '../../data/local/model/task_model.dart';
 import '../bloc/tasks_bloc.dart';
 
@@ -31,7 +32,9 @@ class _UserItemViewState extends State<UserItemView> {
   //late Color color;
   //bool hasUser = false;
   String userId = '';
+  String? authUserType = '';
   SecureStorageService ssService = SecureStorageService();
+  SharedPreferencesService spService = SharedPreferencesService();
 
   @override
   void initState() {
@@ -41,9 +44,11 @@ class _UserItemViewState extends State<UserItemView> {
 
   void _loadUserName() async {
     final id = await ssService.getUid();
+    final type = await spService.getUserType();
 
     setState(() {
       userId = id;
+      authUserType = type;
       //hasUser = validateTaskHasUser();
     });
   }
@@ -93,13 +98,16 @@ class _UserItemViewState extends State<UserItemView> {
                                 }*/
                               case 0:
                                 {
-                                  _confirmDeleteUserDialog(context, widget.userModel);
+                                  await Navigator.pushNamed(context, Pages.adminModifyUserScreen,
+                                      arguments: widget.userModel
+                                  );
                                   break;
                                 }
                             }
                           },
                           itemBuilder: (BuildContext context) {
                             return [
+                              if (authUserType == 'Administrador')
                                 PopupMenuItem<int>(
                                   value: 0,
                                   child: Row(
@@ -114,27 +122,6 @@ class _UserItemViewState extends State<UserItemView> {
                                       buildText(
                                           'Modificar usuario',
                                           kBlackColor,
-                                          textMedium,
-                                          FontWeight.normal,
-                                          TextAlign.start,
-                                          TextOverflow.clip)
-                                    ],
-                                  ),
-                                ),
-                                PopupMenuItem<int>(
-                                  value: 1,
-                                  child: Row(
-                                    children: [
-                                      SvgPicture.asset(
-                                        'assets/svgs/delete.svg',
-                                        width: 20,
-                                      ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      buildText(
-                                          'Eliminar Usuario',
-                                          kRed,
                                           textMedium,
                                           FontWeight.normal,
                                           TextAlign.start,

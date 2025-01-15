@@ -96,6 +96,7 @@ class _ProjectItemViewState extends State<ProjectItemView> {
                           },
                           itemBuilder: (BuildContext context){
                             return[
+                              if (widget.userType == 'Administrador')
                               PopupMenuItem<int>(
                                   value: 0,
                                 child: Row(

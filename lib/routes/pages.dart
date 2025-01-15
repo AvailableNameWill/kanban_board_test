@@ -15,4 +15,5 @@ class Pages {
   static const changePasswordScreen = '/changePasswordScreen';
   static const adminModifyUserScreen = 'adminModifyUserScreen';
   static const resetPassword = 'resetPassword';
+  static const notificationConfig = '/notificationConfig';
 }

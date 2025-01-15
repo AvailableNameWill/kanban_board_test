@@ -55,6 +55,7 @@ class _MyUserScreenState extends State<MyUserScreen> {
   String? uid = '';
   String? userEmail = '';
   String? status = 'enabled';
+  String? authUserType = '';
   final List<String> userOptions = ["Administrador", "Empleado",];
   UserModel userModel = UserModel(id: 'id', name: 'name', userType: 'userType', status: 'enabled');
 
@@ -72,6 +73,7 @@ class _MyUserScreenState extends State<MyUserScreen> {
     setState(() {
       userName = name;
       userType = type;
+      authUserType = type;
       uid = id;
       userEmail = email;
       userNameController.text = userName!;
@@ -112,6 +114,9 @@ class _MyUserScreenState extends State<MyUserScreen> {
                   child: BlocConsumer<AuthBloc, AuthState>(
                       listener: (context, authState) {
                         if(authState is AuthFailure){
+                          ScaffoldMessenger.of(context).showSnackBar(getSnackBar(authState.error, kRed));
+                        }
+                        if (authState is UpdateEmailFailure){
                           ScaffoldMessenger.of(context).showSnackBar(getSnackBar(authState.error, kRed));
                         }
                         if(authState is UpdateEmailSuccess){
@@ -221,7 +226,8 @@ class _MyUserScreenState extends State<MyUserScreen> {
                                   value: userType!.isNotEmpty ? userType : null,
                                   onChanged: (value){
                                     setState(() {
-                                      userType = value;
+                                      if (authUserType == 'Administrador'){ userType = authUserType; }
+                                      else{ userType = value; }
                                     });
                                   },
                                   buttonStyleData: ButtonStyleData(
@@ -337,6 +343,7 @@ class _MyUserScreenState extends State<MyUserScreen> {
                             const SizedBox(height: 5),
                             Row(
                               children: [
+                                if (authUserType == 'Administrador')
                                 Expanded(
                                   child: ElevatedButton(
                                       style: ButtonStyle(
@@ -345,7 +352,7 @@ class _MyUserScreenState extends State<MyUserScreen> {
                                             Colors.white),
                                         backgroundColor:
                                         MaterialStateProperty.all<Color>(
-                                            kWhiteColor),
+                                            kPrimaryColor),
                                         shape: MaterialStateProperty.all<
                                             RoundedRectangleBorder>(
                                           RoundedRectangleBorder(
@@ -355,22 +362,16 @@ class _MyUserScreenState extends State<MyUserScreen> {
                                         ),
                                       ),
                                       onPressed: () {
-                                        context.read<AuthBloc>().add(
-                                          LogoutEvent(),
-                                        );
-
-                                        Navigator.pushAndRemoveUntil(
+                                        Navigator.pushNamed(
                                             context,
-                                            MaterialPageRoute(builder: (context) => const Login()),
-                                            (Route<dynamic> route) => false,
+                                            Pages.notificationConfig
                                         );
-                                        //Navigator.pop(context);
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(15),
                                         child: buildText(
-                                            'Cerrar sesion',
-                                            kRed,
+                                            'Notificaciones',
+                                            kWhiteColor,
                                             textMedium,
                                             FontWeight.w600,
                                             TextAlign.center,
@@ -414,6 +415,47 @@ class _MyUserScreenState extends State<MyUserScreen> {
                                       )),
                                 ),
                               ],
+                            ),
+                            const SizedBox(height: 5),
+                            SizedBox(
+                              child: ElevatedButton(
+                                  style: ButtonStyle(
+                                    foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.white),
+                                    backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        kWhiteColor),
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            10), // Adjust the radius as needed
+                                      ),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    context.read<AuthBloc>().add(
+                                      LogoutEvent(),
+                                    );
+
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const Login()),
+                                          (Route<dynamic> route) => false,
+                                    );
+                                    //Navigator.pop(context);
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(15),
+                                    child: buildText(
+                                        'Cerrar sesion',
+                                        kRed,
+                                        textMedium,
+                                        FontWeight.w600,
+                                        TextAlign.center,
+                                        TextOverflow.clip),
+                                  )),
                             ),
                             const SizedBox(height: 5),
                             SizedBox(

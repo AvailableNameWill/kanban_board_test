@@ -10,6 +10,7 @@ import 'package:kanban_board_test/tasks/presentation/pages/login.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/new_proyect_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/new_task_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/new_user_screen.dart';
+import 'package:kanban_board_test/tasks/presentation/pages/notification_config.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/reset_password.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/tasks_screen.dart';
 import 'package:kanban_board_test/tasks/presentation/pages/update_project_screen.dart';
@@ -68,6 +69,10 @@ Route onGenerateRoute(RouteSettings routeSettings) {
     case Pages.resetPassword:
       return MaterialPageRoute(
           builder: (context) => const ResetPassword(),
+      );
+    case Pages.notificationConfig:
+      return MaterialPageRoute(
+          builder: (context) => const NotificationConfig(),
       );
     default:
       return MaterialPageRoute(

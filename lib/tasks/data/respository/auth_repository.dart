@@ -18,6 +18,10 @@ class AuthRepository{
     return authDataProvider.deleteAuthUser(email, password);
 }
 
+Future<int> getUsersLength() async{
+    return authDataProvider.getUsersLength();
+}
+
   Future<bool> checkSession (){
     return authDataProvider.checkSession();
   }

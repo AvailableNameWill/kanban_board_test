@@ -151,6 +151,7 @@ class UserDataProvider{
 
   Future<List<UserModel>> deleteUser(UserModel userModel) async {
     try{
+      final usersLength = firestore.collection('users').get;
       await firestore.collection('users').doc(userModel.id).delete();
       return await getUsers();
     }catch(exception){
@@ -176,6 +177,15 @@ class UserDataProvider{
       sharedPreferencesService.updateUserType(userType);
     }catch(exception){
       throw handleException(exception.toString());
+    }
+  }
+
+  Future<int> getUsersLength() async{
+    try{
+      final QuerySnapshot querySnapshot = await firestore.collection('users').where('userType', isEqualTo: 'Administrador').get();
+      return querySnapshot.docs.length;
+    }catch(exception){
+      throw handleException(exception.toString() + 'No se pudo recuperar la informacion!');
     }
   }
 }

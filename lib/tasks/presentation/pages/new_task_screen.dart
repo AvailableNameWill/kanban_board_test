@@ -295,9 +295,9 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                           ),
                           BlocBuilder<UsersBloc, UsersState>(
                             builder: (context, userState){
-                              if(userState is FetchUserSuccess){
+                              if(userState is UsersLoaded && userState.users != null){
                                 final users = userState.users;
-                                print("Usuarios cargados: ${users.map((user) => user.name).toList()}");
+                                print("Usuarios cargados: ${users!.map((user) => user.name).toList()}");
                                 return DropdownButtonHideUnderline(
                                   child: DropdownButton2<String>(
                                     isExpanded: true,
